@@ -47,9 +47,9 @@
   #let title = if lang == "en" { [OBJECTIVES] } else { [MỤC TIÊU] }
 
   #let default-intro = if lang == "en" {
-    [After completing this laboratory, the learner should be able to:]
+    [The objectives of this laboratory are:]
   } else {
-    [Sau khi hoàn thành bài lab này, người học có thể:]
+    [Các mục tiêu của bài lab bao gồm:]
   }
 
   #block(
@@ -284,9 +284,23 @@
   #let heading-state = counter(heading).get()
   #let object-state = counter(counter-key).get()
 
-  #let lab-number = if lab-state.len() > 0 { lab-state.at(0) } else { 0 }
-  #let section-number = if heading-state.len() > 0 { heading-state.at(0) } else { 0 }
-  #let object-number = if object-state.len() > 0 { object-state.at(0) } else { 0 }
+  #let lab-number = if lab-state.len() > 0 {
+    lab-state.at(0)
+  } else {
+    0
+  }
+
+  #let section-number = if heading-state.len() > 0 {
+    heading-state.at(0)
+  } else {
+    0
+  }
+
+  #let object-number = if object-state.len() > 0 {
+    object-state.at(0) + 1
+  } else {
+    1
+  }
 
   #align(center)[
     #text(
@@ -321,6 +335,7 @@
     width: 100%,
     above: 9pt,
     below: 14pt,
+    breakable: false,
   )[
     #table(
       columns: (1.55fr, 2.45fr),
@@ -440,7 +455,7 @@
 // ============================================================================
 //
 // Recommended parameter row:
-//   ([pin], [uint8_t], [Logical pin identifier.])
+//   ([pin], [Logical Pin], [Logical pin identifier.])
 //
 // Two-field rows are also accepted:
 //   ([pin], [Logical pin identifier.])
@@ -460,7 +475,11 @@
   #let syntax-label = if lang == "en" { [Syntax] } else { [Cú pháp] }
   #let parameters-label = if lang == "en" { [Parameters] } else { [Tham số] }
   #let parameter-label = if lang == "en" { [Parameter] } else { [Tham số] }
-  #let type-label = if lang == "en" { [Type / accepted value] } else { [Kiểu / giá trị chấp nhận] }
+  #let type-label = if lang == "en" {
+    [Type / accepted value]
+  } else {
+    [Kiểu / giá trị chấp nhận]
+  }
   #let description-label = if lang == "en" { [Description] } else { [Mô tả] }
   #let returns-label = if lang == "en" { [Return value] } else { [Giá trị trả về] }
 
@@ -643,6 +662,7 @@
     width: 100%,
     above: 9pt,
     below: 14pt,
+    breakable: false,
   )[
     #table(
       columns: (1.55fr, 2.45fr),
@@ -749,6 +769,7 @@
     width: 100%,
     above: 9pt,
     below: 14pt,
+    breakable: false,
   )[
     #table(
       columns: (
@@ -923,6 +944,7 @@
       )[
         #context {
           let lang = document-language.get()
+
           if lang == "en" {
             [Step #(index + 1). #step.at(0)]
           } else {
@@ -1007,17 +1029,23 @@
 // 13. REFERENCES AND CITATIONS
 // ============================================================================
 //
-// In-text citations are numbered according to the order of refs.
+// Compact numbered references.
 //
-// #cite-ref(refs, "nxp-s32k-rm")       -> [1]
+// Example:
 //
-// #cite-refs(refs, ("nxp-s32k-rm", "arduino-gpio"))
-//                                      -> [1], [2]
+// [1] Arduino, Digital Pins, Arduino Documentation.
+// [2] NXP Semiconductors, S32K1xx Series Cookbook,
+//     Application Note AN5413, Rev. 5, 2020.
 //
-// External URLs remain clickable in the generated PDF.
+// If a reference contains a URL, its title is clickable.
 // ============================================================================
 
 #let reference-link-color = rgb("#4A4A4A")
+
+
+// ============================================================================
+// Reference lookup
+// ============================================================================
 
 #let reference-index(refs, key) = {
   let result = none
@@ -1031,6 +1059,7 @@
   result
 }
 
+
 #let reference-number(refs, key) = {
   let index = reference-index(refs, key)
 
@@ -1040,6 +1069,18 @@
 
   index + 1
 }
+
+
+// ============================================================================
+// In-text citations
+// ============================================================================
+//
+// #cite-ref(refs, "arduino-digital-pins")
+// -> [1]
+//
+// #cite-refs(refs, ("arduino-digital-pins", "nxp-s32k-datasheet"))
+// -> [1], [2]
+// ============================================================================
 
 #let cite-ref(refs, key) = {
   let number = reference-number(refs, key)
@@ -1053,15 +1094,25 @@
   ]
 }
 
+
 #let cite-refs(refs, keys) = {
+  let result = []
+
   for (index, key) in keys.enumerate() {
     if index > 0 {
-      [, ]
+      result += [, ]
     }
 
-    cite-ref(refs, key)
+    result += cite-ref(refs, key)
   }
+
+  result
 }
+
+
+// ============================================================================
+// Reference validation
+// ============================================================================
 
 #let valid-reference-type(reference-type) = (
   reference-type == "manual"
@@ -1073,33 +1124,96 @@
     or reference-type == "web"
 )
 
-#let reference-entry(
-  number,
-  item,
-) = context [
-  #let lang = document-language.get()
-  #let online-label = if lang == "en" { [Available online] } else { [Truy cập trực tuyến] }
-  #let accessed-label = if lang == "en" { [Accessed] } else { [Truy cập ngày] }
 
-  #if not ("key" in item) {
+// ============================================================================
+// Clickable reference title
+// ============================================================================
+
+#let reference-title(item) = {
+  if "url" in item {
+    link(item.url)[
+      #text(
+        font: "Calibri",
+        size: 9.3pt,
+        style: "italic",
+        fill: reference-link-color,
+      )[
+        #item.title
+      ]
+    ]
+  } else {
+    text(
+      font: "Calibri",
+      size: 9.3pt,
+      style: "italic",
+      fill: text-black,
+    )[
+      #item.title
+    ]
+  }
+}
+
+
+// ============================================================================
+// Single reference entry
+// ============================================================================
+
+#let reference-entry(number, item) = {
+  if not ("key" in item) {
     panic("Reference entry is missing required field: key")
   }
 
-  #if not ("author" in item) {
+  if not ("author" in item) {
     panic("Reference '" + item.key + "' is missing required field: author")
   }
 
-  #if not ("title" in item) {
+  if not ("title" in item) {
     panic("Reference '" + item.key + "' is missing required field: title")
   }
 
-  #if "type" in item {
+  if "type" in item {
     if not valid-reference-type(item.type) {
-      panic("Unsupported reference type in '" + item.key + "': " + item.type)
+      panic(
+        "Unsupported reference type in '" + item.key + "': " + item.type,
+      )
     }
   }
 
-  #block(
+  let entry = []
+
+  entry += item.author
+  entry += [, ]
+
+  entry += reference-title(item)
+
+  if "document" in item {
+    entry += [, ]
+    entry += item.document
+  }
+
+  if "source" in item {
+    entry += [, ]
+    entry += item.source
+  }
+
+  if "publisher" in item {
+    entry += [, ]
+    entry += item.publisher
+  }
+
+  if "revision" in item {
+    entry += [, Rev. ]
+    entry += item.revision
+  }
+
+  if "year" in item {
+    entry += [, ]
+    entry += item.year
+  }
+
+  entry += [.]
+
+  block(
     width: 100%,
     breakable: false,
   )[
@@ -1130,72 +1244,16 @@
           leading: 0.82em,
         )
 
-        #item.author
-        [, ]
-
-        #text(style: "italic")[
-          #item.title
-        ]
-
-        #if "document" in item [
-          [, ]
-          #item.document
-        ]
-
-        #if "source" in item [
-          [, ]
-          #item.source
-        ]
-
-        #if "publisher" in item [
-          [, ]
-          #item.publisher
-        ]
-
-        #if "revision" in item [
-          [, Rev. ]
-          #item.revision
-        ]
-
-        #if "year" in item [
-          [, ]
-          #item.year
-        ]
-
-        [.]
-
-        #if "url" in item [
-          #h(5pt)
-
-          #link(item.url)[
-            #text(
-              font: "Calibri",
-              size: 8.8pt,
-              style: "italic",
-              fill: reference-link-color,
-            )[
-              #online-label
-            ]
-          ]
-
-          [.]
-        ]
-
-        #if "accessed" in item [
-          #h(4pt)
-
-          #text(
-            font: "Calibri",
-            size: 8.8pt,
-            fill: text-gray,
-          )[
-            #accessed-label: #item.accessed.
-          ]
-        ]
+        #entry
       ],
     )
   ]
-]
+}
+
+
+// ============================================================================
+// Reference list
+// ============================================================================
 
 #let references(refs) = block(
   width: 100%,
@@ -1224,7 +1282,7 @@
       #reference-entry(index + 1, item)
 
       #if index < refs.len() - 1 [
-        #v(10pt)
+        #v(6pt)
       ]
     ]
   ]
