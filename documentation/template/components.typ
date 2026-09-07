@@ -288,9 +288,7 @@
   //   eduf-listing-2-5
   //
   // This makes numbering restart automatically in every section.
-  #let counter-key = "eduf-" + kind
-  + "-" + str(lab-number)
-  + "-" + str(section-number)
+  #let counter-key = "eduf-" + kind + "-" + str(lab-number) + "-" + str(section-number)
 
   #let prefix = if kind == "table" {
     if lang == "en" { "Table" } else { "Bảng" }
@@ -305,7 +303,7 @@
   #let object-state = counter(counter-key).get()
 
   #let object-number = if object-state.len() > 0 {
-    object-state.at(0)
+    object-state.at(0) + 1
   } else {
     1
   }
@@ -1033,6 +1031,7 @@
   width: 100%,
   above: 9pt,
   below: 14pt,
+  breakable: false,
 )[
   #body
 
