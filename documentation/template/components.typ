@@ -9,6 +9,7 @@
 //   - warning()
 //   - object-caption()
 //   - api-table()
+//   - info-table()
 //   - api-detail()
 //   - hardware-table()
 //   - pin-table()
@@ -248,12 +249,13 @@
 //   <Lab>.<Top-level section>.<Sequence>
 //
 // Examples:
-//   Bảng 1.3.1.
-//   Hình 1.6.1.
-//   Mã nguồn 1.6.1.
+//   Bảng 2.2.1.
+//   Hình 2.3.1.
+//   Mã nguồn 2.5.1.
 //
-// Table/Figure/Listing counters are independent and restart in each
-// top-level section.
+// Each object type has an independent sequence for every top-level section.
+// Therefore, the first table in Section 3 is always Table <Lab>.3.1,
+// regardless of how many tables appeared in Section 2.
 // ============================================================================
 
 #let object-caption(
@@ -262,27 +264,8 @@
 ) = context [
   #let lang = document-language.get()
 
-  #let counter-key = if kind == "table" {
-    "eduf-table"
-  } else if kind == "figure" {
-    "eduf-figure"
-  } else {
-    "eduf-listing"
-  }
-
-  #let prefix = if kind == "table" {
-    if lang == "en" { "Table" } else { "Bảng" }
-  } else if kind == "figure" {
-    if lang == "en" { "Figure" } else { "Hình" }
-  } else {
-    if lang == "en" { "Listing" } else { "Mã nguồn" }
-  }
-
-  #counter(counter-key).step()
-
   #let lab-state = counter("eduf-lab").get()
   #let heading-state = counter(heading).get()
-  #let object-state = counter(counter-key).get()
 
   #let lab-number = if lab-state.len() > 0 {
     lab-state.at(0)
@@ -296,8 +279,33 @@
     0
   }
 
+  // Use one counter for each:
+  //   object type + laboratory + top-level section
+  //
+  // Example:
+  //   eduf-table-2-3
+  //   eduf-figure-2-3
+  //   eduf-listing-2-5
+  //
+  // This makes numbering restart automatically in every section.
+  #let counter-key = "eduf-" + kind
+  + "-" + str(lab-number)
+  + "-" + str(section-number)
+
+  #let prefix = if kind == "table" {
+    if lang == "en" { "Table" } else { "Bảng" }
+  } else if kind == "figure" {
+    if lang == "en" { "Figure" } else { "Hình" }
+  } else {
+    if lang == "en" { "Listing" } else { "Mã nguồn" }
+  }
+
+  #counter(counter-key).step()
+
+  #let object-state = counter(counter-key).get()
+
   #let object-number = if object-state.len() > 0 {
-    object-state.at(0) + 1
+    object-state.at(0)
   } else {
     1
   }
@@ -312,6 +320,127 @@
     )[
       #prefix #lab-number.#section-number.#object-number. #caption
     ]
+  ]
+]
+
+// ============================================================================
+// 4.5. INFORMATION TABLE
+// ============================================================================
+//
+// General-purpose numbered table for laboratory content.
+//
+// Use this component instead of raw #table(...) in laboratory files.
+//
+// Example:
+//
+// #info-table(
+//   columns: (1fr, 1fr, 2fr),
+//   headers: (
+//     [State],
+//     [Value],
+//     [Description],
+//   ),
+//   rows: (
+//     ([LOW], [0], [Logic low.]),
+//     ([HIGH], [1], [Logic high.]),
+//   ),
+//   caption: [Digital input states],
+// )
+//
+// ============================================================================
+
+#let info-table(
+  columns: (),
+  headers: (),
+  rows: (),
+  caption: none,
+  alignments: left + horizon,
+) = context [
+  #if caption == none {
+    panic("info-table() requires a caption so the table can be numbered.")
+  }
+
+  #if headers.len() == 0 {
+    panic("info-table() requires at least one header.")
+  }
+
+  #if columns.len() != headers.len() {
+    panic(
+      "info-table(): number of columns must match number of headers.",
+    )
+  }
+
+  #for row in rows {
+    if row.len() != headers.len() {
+      panic(
+        "info-table(): every row must contain the same number of cells as the header.",
+      )
+    }
+  }
+
+  #block(
+    width: 100%,
+    above: 9pt,
+    below: 14pt,
+    breakable: false,
+  )[
+    #table(
+      columns: columns,
+      align: alignments,
+      stroke: 0.4pt + table-line,
+
+      table.header(
+        repeat: true,
+
+        ..headers.map(header => table.cell(
+          fill: table-header-gray,
+          align: center + horizon,
+          stroke: (
+            top: 0.7pt + text-gray,
+            bottom: 0.7pt + text-gray,
+            left: 0.4pt + table-line,
+            right: 0.4pt + table-line,
+          ),
+          inset: 7pt,
+        )[
+          #text(
+            font: "Calibri",
+            size: 9.2pt,
+            weight: "bold",
+          )[
+            #header
+          ]
+        ]),
+      ),
+
+      ..rows
+        .map(row => (
+          ..row.map(cell => table.cell(
+            inset: 7pt,
+          )[
+            #set text(
+              font: "Calibri",
+              size: 9.3pt,
+              fill: text-black,
+            )
+
+            #set par(
+              justify: true,
+              leading: 0.76em,
+            )
+
+            #cell
+          ]),
+        ))
+        .flatten(),
+    )
+
+    #v(6pt)
+
+    #object-caption(
+      "table",
+      caption,
+    )
   ]
 ]
 
