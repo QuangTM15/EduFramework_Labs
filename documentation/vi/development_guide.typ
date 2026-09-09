@@ -530,7 +530,7 @@
 // ============================================================================
 
 #let command-block(
-  body,
+  command,
   label: [Terminal],
 ) = block(
   width: 100%,
@@ -572,7 +572,7 @@
       size: 8.8pt,
       fill: text-black,
     )[
-      #body
+      #command
     ]
   ]
 ]
@@ -1037,3 +1037,200 @@ EduFramework Laboratory Series xây dựng các bài thực hành theo từng ch
   "EduFramework Labs and Documentation",
   "https://github.com/QuangTM15/EduFramework_Labs",
 )
+
+= Thiết lập môi trường phát triển
+
+Trước khi tạo project EduFramework, cần chuẩn bị các công cụ phát triển trên máy tính. Môi trường được sử dụng trong tài liệu gồm Visual Studio Code, Git và PlatformIO IDE. Phần này hướng dẫn cài đặt và kiểm tra từng thành phần trước khi bắt đầu tạo project.
+
+== Cài đặt Visual Studio Code
+
+Visual Studio Code (VS Code) được sử dụng làm trình soạn thảo mã nguồn và là môi trường để tích hợp PlatformIO trong quá trình phát triển với EduFramework.
+
+Truy cập trang chính thức của Visual Studio Code:
+
+#repo-link(
+  "Visual Studio Code",
+  "https://code.visualstudio.com/",
+)
+
+Tải phiên bản Visual Studio Code phù hợp với hệ điều hành đang sử dụng và thực hiện cài đặt theo hướng dẫn trên trang chính thức. Sau khi hoàn tất, khởi động Visual Studio Code để xác nhận ứng dụng hoạt động bình thường.
+
+#note[
+  Giao diện và quá trình cài đặt Visual Studio Code có thể khác nhau tùy theo hệ điều hành và phiên bản phần mềm. Development Guide không yêu cầu thay đổi cấu hình cài đặt đặc biệt của Visual Studio Code.
+]
+
+
+== Cài đặt và cấu hình Git
+
+Git được sử dụng để quản lý mã nguồn và cho phép PlatformIO truy cập các thành phần của EduFramework được lưu trữ trên GitHub. Ngoài việc cài đặt Git, cần thiết lập thông tin người dùng để Git có thể ghi nhận tác giả của các commit được tạo trên máy tính.
+
+=== Tải và cài đặt Git
+
+Truy cập trang cài đặt chính thức của Git:
+
+#repo-link(
+  "Git - Install",
+  "https://git-scm.com/install/",
+)
+
+Tại trang cài đặt, chọn phiên bản Git phù hợp với hệ điều hành đang sử dụng.
+
+#guide-figure(
+  caption: [Trang cài đặt chính thức của Git],
+)[
+  #image(
+    "../assets/images/git_download_page.png",
+    width: 92%,
+  )
+]
+
+Sau khi lựa chọn hệ điều hành, tải bộ cài phù hợp với hệ thống. Hình dưới đây minh họa quá trình lựa chọn bộ cài Git trên Windows x64.
+
+#guide-figure(
+  caption: [Ví dụ lựa chọn bộ cài Git trên Windows],
+)[
+  #image(
+    "../assets/images/git_download_version.png",
+    width: 82%,
+  )
+]
+
+Thực hiện cài đặt Git bằng bộ cài vừa tải xuống. Các tùy chọn mặc định của trình cài đặt có thể được giữ nguyên nếu không có yêu cầu cấu hình riêng.
+
+Đối với Git for Windows, khi trình cài đặt yêu cầu lựa chọn trình soạn thảo mặc định của Git, chọn *Visual Studio Code* để sử dụng VS Code cho các thao tác Git cần mở trình soạn thảo.
+
+#guide-figure(
+  caption: [Lựa chọn Visual Studio Code làm trình soạn thảo mặc định của Git],
+)[
+  #image(
+    "../assets/images/git_default_editor.png",
+    width: 72%,
+  )
+]
+
+Tiếp tục quá trình cài đặt với các tùy chọn mặc định cho đến khi hoàn tất.
+
+=== Kiểm tra cài đặt Git
+
+Sau khi cài đặt, mở terminal và thực hiện lệnh:
+
+#command-block("git --version")
+
+Nếu Git đã được cài đặt và có thể được truy cập từ terminal, kết quả sẽ hiển thị phiên bản Git hiện có trên hệ thống.
+
+#guide-figure(
+  caption: [Kiểm tra phiên bản Git sau khi cài đặt],
+)[
+  #image(
+    "../assets/images/git_version.png",
+    width: 70%,
+  )
+]
+
+#note[
+  Số phiên bản hiển thị có thể khác với hình minh họa. Chỉ cần lệnh `git --version` trả về thông tin phiên bản hợp lệ là quá trình cài đặt Git đã thành công.
+]
+
+=== Cấu hình thông tin người dùng Git
+
+Git sử dụng `user.name` và `user.email` để xác định thông tin tác giả được ghi trong mỗi commit. Nếu sử dụng GitHub để lưu trữ repository, nên sử dụng địa chỉ email đã được liên kết với tài khoản GitHub để các commit có thể được nhận diện đúng với tài khoản tương ứng.
+
+Nếu chưa có tài khoản GitHub, có thể tạo tài khoản tại trang chính thức:
+
+#repo-link(
+  "GitHub",
+  "https://github.com/",
+)
+
+Thông tin tài khoản và địa chỉ email có thể được kiểm tra trong GitHub trước khi cấu hình Git. Hình dưới đây minh họa vị trí thông tin tài khoản trên GitHub.
+
+#guide-figure(
+  caption: [Ví dụ thông tin tài khoản và địa chỉ email trên GitHub],
+)[
+  #image(
+    "../assets/images/git_profile.png",
+    width: 92%,
+  )
+]
+
+Mở terminal và thiết lập tên được sử dụng cho các commit bằng lệnh:
+
+#command-block(
+  "git config --global user.name \"Your Name\"",
+)
+
+Tiếp theo, thiết lập địa chỉ email:
+
+#command-block(
+  "git config --global user.email \"your-email@example.com\"",
+)
+
+Trong đó, `Your Name` là tên được ghi nhận trong commit và `your-email@example.com` là địa chỉ email của người dùng. Giá trị `user.name` không bắt buộc phải giống tên tài khoản GitHub.
+
+Tùy chọn `--global` áp dụng các giá trị trên cho các repository Git của tài khoản người dùng hiện tại trên máy tính.
+
+Sau khi cấu hình, kiểm tra lại thiết lập bằng lệnh:
+
+#command-block(
+  "git config --global --list",
+)
+
+Kết quả phải chứa các thông tin `user.name` và `user.email` đã thiết lập.
+
+#config-block(
+  filename: [Git global configuration],
+)[
+  user.name=Your Name
+  user.email=your-email\@example.com
+]
+
+Hình dưới đây minh họa kết quả sau khi Git đã được cấu hình thành công.
+
+#guide-figure(
+  caption: [Kiểm tra cấu hình người dùng Git],
+)[
+  #image(
+    "../assets/images/git_global_list.png",
+    width: 78%,
+  )
+]
+
+#expected-result[
+  Git đã được cài đặt và cấu hình thành công. Lệnh `git --version` có thể được thực thi từ terminal, đồng thời kết quả của `git config --global --list` chứa `user.name` và `user.email` của người dùng.
+]
+
+== Cài đặt PlatformIO IDE
+
+PlatformIO IDE được tích hợp vào Visual Studio Code thông qua extension chính thức của PlatformIO. Extension này cung cấp môi trường phát triển cho các project embedded và sẽ được sử dụng để build, upload và debug các project EduFramework.
+
+Mở Visual Studio Code, chọn *Extensions* trên Activity Bar và tìm kiếm `PlatformIO IDE`. Chọn extension *PlatformIO IDE* do *PlatformIO* phát hành, sau đó chọn *Install* để bắt đầu cài đặt.
+
+#guide-figure(
+  caption: [Cài đặt PlatformIO IDE từ Visual Studio Code Extensions Marketplace],
+)[
+  #image(
+    "../assets/images/platformio_install_extension.png",
+    width: 94%,
+  )
+]
+
+Sau khi cài đặt extension, PlatformIO sẽ thực hiện quá trình khởi tạo các thành phần cần thiết. Quá trình này có thể mất một khoảng thời gian trong lần khởi động đầu tiên.
+
+#note[
+  Trong lần khởi động đầu tiên, cần chờ PlatformIO hoàn tất quá trình khởi tạo trước khi tiếp tục. Thời gian thực hiện có thể khác nhau tùy thuộc vào hệ thống và kết nối mạng.
+]
+
+Sau khi quá trình khởi tạo hoàn tất, chọn biểu tượng *PlatformIO* trên Activity Bar, sau đó chọn *PIO Home → Open* để mở PlatformIO Home.
+
+#guide-figure(
+  caption: [Giao diện PlatformIO Home sau khi cài đặt thành công],
+)[
+  #image(
+    "../assets/images/platformio_home.png",
+    width: 94%,
+  )
+]
+
+#expected-result[
+  PlatformIO IDE đã được cài đặt và khởi tạo thành công. PlatformIO Home có thể được mở trực tiếp từ Visual Studio Code.
+]
