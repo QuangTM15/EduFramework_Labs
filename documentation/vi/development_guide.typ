@@ -688,6 +688,59 @@
   ]
 ]
 
+// ============================================================================
+// 4.8 REPOSITORY LINK
+// ============================================================================
+
+#let repo-link(
+  name,
+  url,
+) = block(
+  width: 100%,
+  above: 7pt,
+  below: 3pt,
+  breakable: false,
+)[
+  #rect(
+    width: 100%,
+    fill: soft-gray,
+    stroke: (
+      left: 2pt + fpt-orange,
+      top: 0.4pt + border-gray,
+      right: 0.4pt + border-gray,
+      bottom: 0.4pt + border-gray,
+    ),
+    inset: (
+      left: 10pt,
+      right: 10pt,
+      top: 6pt,
+      bottom: 6pt,
+    ),
+  )[
+    #text(
+      font: "Calibri",
+      size: 8.5pt,
+      weight: "bold",
+      fill: text-gray,
+    )[
+      GitHub Repository
+    ]
+
+    #h(10pt)
+
+    #link(url)[
+      #text(
+        font: "Consolas",
+        size: 8.8pt,
+        weight: "bold",
+        fill: fpt-orange,
+      )[
+        #name
+      ]
+    ]
+  ]
+]
+
 
 // ============================================================================
 // 5. REFERENCES USED BY TEST CONTENT
@@ -918,9 +971,8 @@
   indent: auto,
 )
 
-
 // ============================================================================
-// 8. TEST CONTENT
+// 8. DOCUMENT CONTENT
 // ============================================================================
 
 #pagebreak()
@@ -929,27 +981,11 @@
 
 = Giới thiệu
 
-Tài liệu Hướng dẫn Phát triển EduFramework cung cấp cấu trúc tài liệu cho quá trình thiết lập môi trường phát triển, tạo dự án, build, upload và debug ứng dụng trên vi điều khiển S32K144 với EduFramework.
+EduFramework là một hệ sinh thái phát triển phần mềm dành cho vi điều khiển NXP S32K144, được xây dựng nhằm đơn giản hóa quá trình phát triển ứng dụng thông qua các API ở mức cao hơn và khả năng tích hợp với PlatformIO. Hệ thống hình thành một quy trình thống nhất từ tổ chức project và phát triển mã nguồn đến build, nạp chương trình và debug trên phần cứng.
 
-Phần nội dung hiện tại chỉ được sử dụng để kiểm tra bố cục và các thành phần trình bày trước khi nội dung chính thức của tài liệu được xây dựng.
+Tài liệu này hướng dẫn từng bước quá trình thiết lập môi trường phát triển và tạo một project EduFramework trên bo mạch MaaZEDU. Sau khi hoàn thành các bước thiết lập, môi trường có thể được sử dụng để tiếp tục với EduFramework Laboratory Series hoặc phát triển các ứng dụng riêng trên S32K144.
 
-== Văn bản và mã nội tuyến
-
-Một dự án EduFramework sử dụng file cấu hình `platformio.ini` và đặt mã nguồn ứng dụng chính trong `src/main.c`.
-
-Tên framework `eduframework`, tên board `s32k144` và giao thức `jlink` có thể được thể hiện bằng kiểu mã nội tuyến để phân biệt với phần văn bản thông thường.
-
-#note[
-  Các thành phần trong phần kiểm tra này được sử dụng để đánh giá hình thức trình bày. Nội dung sẽ được thay thế bằng nội dung chính thức sau khi hệ thống tài liệu được xác nhận.
-]
-
-#warning[
-  Các thao tác liên quan đến kết nối phần cứng, nạp chương trình và debug cần được kiểm tra trên hệ thống thực tế trước khi đưa vào hướng dẫn chính thức.
-]
-
-= Thành phần hệ sinh thái
-
-Bảng dưới đây được sử dụng để kiểm tra component bảng của Development Guide.
+Hệ sinh thái EduFramework được tổ chức thành ba thành phần chính: *EduFramework*, *Platform-NXPS32K* và *EduFramework Laboratory Series*. Mỗi thành phần đảm nhiệm một vai trò riêng trong quy trình phát triển.
 
 #guide-table(
   columns: (1.35fr, 2.65fr),
@@ -962,205 +998,42 @@ Bảng dưới đây được sử dụng để kiểm tra component bảng củ
   rows: (
     (
       [EduFramework],
-      [Cung cấp các API và thư viện phục vụ phát triển ứng dụng trên S32K144.],
+      [Lớp phần mềm dành cho phát triển ứng dụng, bao gồm các API theo phong cách Arduino, định nghĩa chân logic và thư viện thiết bị cho S32K144.],
     ),
-
     (
       [Platform-NXPS32K],
-      [Cung cấp phần tích hợp cần thiết để sử dụng S32K144 trong môi trường PlatformIO.],
+      [Tích hợp S32K144 và EduFramework vào PlatformIO, hỗ trợ cấu hình project, build, upload và debug.],
     ),
-
     (
       [EduFramework Laboratory Series],
-      [Cung cấp hệ thống bài thực hành và các project ví dụ sử dụng EduFramework.],
+      [Hệ thống bài thực hành, project mẫu và tài liệu hướng dẫn khai thác EduFramework theo từng chủ đề.],
     ),
   ),
 
   caption: [Các thành phần chính của hệ sinh thái EduFramework],
 )
 
-== Kiểm tra danh sách
+EduFramework là thành phần phần mềm được ứng dụng sử dụng trực tiếp. Các API theo phong cách Arduino đơn giản hóa những thao tác phổ biến trên vi điều khiển, trong khi các thư viện thiết bị hỗ trợ làm việc với các module và cảm biến bên ngoài. Repository của framework cũng chứa mã nguồn các driver tầng thấp và những thành phần cần thiết cho việc nghiên cứu hoặc tiếp tục phát triển framework.
 
-Các nội dung hướng dẫn có thể sử dụng danh sách khi cần mô tả một tập hợp thành phần:
-
-- Môi trường phát triển.
-- Project configuration.
-- Application source code.
-- Build và upload.
-- Debug.
-
-Danh sách đánh số cũng có thể được sử dụng khi thứ tự thực hiện có ý nghĩa:
-
-+ Chuẩn bị môi trường phát triển.
-+ Tạo project.
-+ Viết mã nguồn.
-+ Build chương trình.
-+ Upload firmware.
-
-= Hình minh họa
-
-Development Guide sẽ sử dụng hình ảnh khi cần minh họa giao diện, kết nối phần cứng hoặc quy trình thao tác.
-
-#guide-figure(
-  caption: [Ví dụ khu vực dành cho hình minh họa],
-)[
-  #rect(
-    width: 72%,
-    height: 48mm,
-    fill: soft-gray,
-    stroke: 0.6pt + border-gray,
-  )[
-    #align(center + horizon)[
-      #text(
-        font: "Calibri",
-        size: 11pt,
-        fill: text-gray,
-      )[
-        HÌNH MINH HỌA
-      ]
-    ]
-  ]
-]
-
-== Hình thứ hai trong cùng section
-
-#guide-figure(
-  caption: [Kiểm tra thứ tự đánh số hình trong cùng một section],
-)[
-  #rect(
-    width: 58%,
-    height: 30mm,
-    fill: soft-gray,
-    stroke: 0.6pt + border-gray,
-  )
-]
-
-= Project và cấu hình
-
-== Cấu trúc project
-
-Component `file-tree()` được sử dụng để thể hiện cấu trúc thư mục.
-
-#file-tree(
-  title: [Cấu trúc project EduFramework tối thiểu],
-)[
-  my_eduframework_project/
-  ├── platformio.ini
-  └── src/
-  └── main.c
-]
-
-== File cấu hình
-
-Component `config-block()` được sử dụng cho các file cấu hình như `platformio.ini`.
-
-#config-block(
-  filename: "platformio.ini",
-)[
-  [env:s32k144]
-  platform = https://github.com/QuangTM15/platform-nxps32k.git
-  board = s32k144
-  framework = eduframework
-  upload_protocol = jlink
-  debug_tool = jlink
-]
-
-== Terminal command
-
-Component `command-block()` được sử dụng cho những lệnh cần nhập trong terminal.
-
-#command-block[
-  git --version
-]
-
-#command-block(
-  label: [PowerShell],
-)[
-  typst compile --root . documentation/vi/development_guide.typ docs/vi/development_guide.pdf
-]
-
-= Mã nguồn
-
-Mã nguồn ứng dụng có thể được trình bày dưới dạng listing và đánh số theo section.
-
-#guide-code(
-  caption: [Cấu trúc chương trình EduFramework tối thiểu],
-)[
-  ```c
-  #include "Arduino.h"
-
-  int main(void)
-  {
-      setup();
-
-      while (1)
-      {
-      }
-
-      return 0;
-  }
-  ```
-]
-
-== Mã nguồn thứ hai
-
-#guide-code(
-  caption: [Ví dụ kiểm tra thứ tự mã nguồn],
-)[
-  ```c
-  digitalWrite(LED_BUILTIN, LOW);
-  delay(500);
-  digitalWrite(LED_BUILTIN, HIGH);
-  delay(500);
-  ```
-]
-
-= Các bước thao tác
-
-Component `procedure()` hiện có trong Laboratory Series không phụ thuộc bộ đếm của bài lab nên có thể được sử dụng lại trong Development Guide.
-
-#procedure(
-  steps: (
-    (
-      [Mở project],
-      [
-        Mở thư mục project trong Visual Studio Code và xác nhận rằng file
-        `platformio.ini` nằm ở thư mục gốc của project.
-      ],
-    ),
-
-    (
-      [Kiểm tra cấu hình],
-      [
-        Kiểm tra tên board, framework và công cụ upload được khai báo trong
-        `platformio.ini`.
-      ],
-    ),
-
-    (
-      [Build project],
-      [
-        Thực hiện build để kiểm tra cấu hình project và mã nguồn trước khi
-        upload firmware lên phần cứng.
-      ],
-    ),
-  ),
+#repo-link(
+  "EduFramework Project",
+  "https://github.com/QuangTM15/s32k144-edu-framework",
 )
 
-#expected-result[
-  Sau khi hoàn thành các bước kiểm tra, project có cấu trúc hợp lệ và có thể được sử dụng làm cơ sở cho quá trình build, upload và debug.
-]
+#v(5pt)
 
-= Kiểm tra trích dẫn
+Platform-NXPS32K đảm nhiệm việc tích hợp S32K144 với hệ sinh thái PlatformIO. Platform xác định board, framework, toolchain và các công cụ liên quan để PlatformIO có thể thực hiện quy trình build, upload và debug cho project EduFramework. Các định nghĩa và cấu hình của platform có thể được tham khảo trực tiếp trong repository của dự án.
 
-Development Guide có thể tái sử dụng hệ thống trích dẫn và tài liệu tham khảo hiện có.
+#repo-link(
+  "Platform-NXPS32K",
+  "https://github.com/QuangTM15/platform-nxps32k",
+)
 
-PlatformIO cung cấp hệ thống tài liệu riêng cho việc cấu hình project và sử dụng PlatformIO Core #cite-ref(refs, "platformio-docs").
+#v(5pt)
 
-EduFramework được phát triển trong repository riêng của dự án #cite-ref(refs, "eduframework").
+EduFramework Laboratory Series xây dựng các bài thực hành theo từng chủ đề dựa trên EduFramework và Platform-NXPS32K. Các bài lab được thiết kế để từng bước làm quen với API của framework và áp dụng chúng vào phần cứng, từ đó tạo nền tảng cho việc phát triển các ứng dụng riêng trên S32K144. Repository của Laboratory Series lưu trữ các project thực hành, tài liệu hoàn chỉnh và mã nguồn dùng để phát triển tài liệu.
 
-Có thể trích dẫn nhiều nguồn đồng thời bằng cùng hệ thống #cite-refs(refs, ("platformio-docs", "eduframework")).
-
-= Tài liệu tham khảo
-
-#references(refs)
+#repo-link(
+  "EduFramework Labs and Documentation",
+  "https://github.com/QuangTM15/EduFramework_Labs",
+)
