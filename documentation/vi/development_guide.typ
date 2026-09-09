@@ -741,6 +741,62 @@
   ]
 ]
 
+// ============================================================================
+// 4.9 RESOURCE LINK
+// ============================================================================
+
+#let resource-link(
+  label,
+  name,
+  url,
+) = block(
+  width: 100%,
+  above: 7pt,
+  below: 3pt,
+  breakable: false,
+)[
+  #rect(
+    width: 100%,
+    fill: soft-gray,
+
+    stroke: (
+      left: 2pt + fpt-orange,
+      top: 0.4pt + border-gray,
+      right: 0.4pt + border-gray,
+      bottom: 0.4pt + border-gray,
+    ),
+
+    inset: (
+      left: 10pt,
+      right: 10pt,
+      top: 6pt,
+      bottom: 6pt,
+    ),
+  )[
+    #text(
+      font: "Calibri",
+      size: 8.5pt,
+      weight: "bold",
+      fill: text-gray,
+    )[
+      #label
+    ]
+
+    #h(10pt)
+
+    #link(url)[
+      #text(
+        font: "Consolas",
+        size: 8.8pt,
+        weight: "bold",
+        fill: fpt-orange,
+      )[
+        #name
+      ]
+    ]
+  ]
+]
+
 
 // ============================================================================
 // 5. REFERENCES USED BY TEST CONTENT
@@ -1048,7 +1104,8 @@ Visual Studio Code (VS Code) được sử dụng làm trình soạn thảo mã 
 
 Truy cập trang chính thức của Visual Studio Code:
 
-#repo-link(
+#resource-link(
+  [Trang chính thức],
   "Visual Studio Code",
   "https://code.visualstudio.com/",
 )
@@ -1068,7 +1125,8 @@ Git được sử dụng để quản lý mã nguồn và cho phép PlatformIO t
 
 Truy cập trang cài đặt chính thức của Git:
 
-#repo-link(
+#resource-link(
+  [Trang cài đặt],
   "Git - Install",
   "https://git-scm.com/install/",
 )
@@ -1234,3 +1292,375 @@ Sau khi quá trình khởi tạo hoàn tất, chọn biểu tượng *PlatformIO
 #expected-result[
   PlatformIO IDE đã được cài đặt và khởi tạo thành công. PlatformIO Home có thể được mở trực tiếp từ Visual Studio Code.
 ]
+
+= Tạo project EduFramework đầu tiên
+
+Phần này hướng dẫn tạo một project EduFramework tối thiểu trên S32K144, cấu hình project với PlatformIO, viết chương trình đầu tiên và nạp chương trình lên bo mạch MaaZEDU.
+
+== Tạo cấu trúc project
+
+Trong Visual Studio Code, chọn *File → Open Folder...*. Tạo một thư mục mới cho project, ví dụ `EduFramework_First_Project`, sau đó mở thư mục vừa tạo trong Visual Studio Code.
+
+Trong Explorer của Visual Studio Code, tạo thư mục `src`, sau đó tạo file `main.c` bên trong thư mục này. Tại thư mục gốc của project, tạo thêm file `platformio.ini`.
+
+Cấu trúc project ban đầu như sau:
+
+#file-tree(
+  title: [Cấu trúc project EduFramework],
+)[
+  #text[
+    EduFramework_First_Project/ \
+    ├── platformio.ini \
+    └── src/ \
+    #h(1.5em)└── main.c
+  ]
+]
+
+#guide-figure(
+  caption: [Cấu trúc ban đầu của project EduFramework],
+)[
+  #image(
+    "../assets/images/project_structure.png",
+    width: 92%,
+  )
+]
+
+
+== Mở project bằng PlatformIO
+
+Sau khi tạo cấu trúc project, mở PlatformIO Home bằng biểu tượng PlatformIO trên Activity Bar. Chọn *PIO Home → Open → Open Project* để mở project.
+
+#guide-figure(
+  caption: [Mở project từ PlatformIO Home],
+)[
+  #image(
+    "../assets/images/platformio_open_project.png",
+    width: 94%,
+  )
+]
+
+Chọn thư mục project vừa tạo. Thư mục được chọn phải chứa file `platformio.ini` và thư mục `src`.
+
+#guide-figure(
+  caption: [Lựa chọn thư mục project EduFramework],
+)[
+  #image(
+    "../assets/images/platformio_select_project_folder.png",
+    width: 72%,
+  )
+]
+
+
+== Cấu hình project
+
+Mở file `platformio.ini` và khai báo environment cho S32K144 như sau:
+
+#guide-code(
+  caption: [Cấu hình PlatformIO cho project EduFramework],
+)[
+  #raw(
+    block: true,
+    lang: "ini",
+    "[env:s32k144]\nplatform = https://github.com/QuangTM15/platform-nxps32k.git\nboard = s32k144\nframework = eduframework\nupload_protocol = jlink\ndebug_tool = jlink",
+  )
+]
+
+Trong cấu hình trên, `platform` xác định Platform-NXPS32K được sử dụng bởi project, `board` xác định bo mạch đích, `framework` lựa chọn EduFramework, trong khi `upload_protocol` và `debug_tool` cấu hình J-Link cho quá trình nạp chương trình và debug.
+
+Sau khi lưu `platformio.ini`, PlatformIO sẽ nhận diện cấu hình project và chuẩn bị môi trường phát triển. Trong lần sử dụng đầu tiên, quá trình này có thể mất một khoảng thời gian do PlatformIO cần tải và cài đặt các thành phần cần thiết.
+
+Các thư mục và file do PlatformIO quản lý, chẳng hạn `.pio` và `.vscode`, có thể xuất hiện trong project sau khi quá trình khởi tạo hoàn tất.
+
+#guide-figure(
+  caption: [Project EduFramework sau khi được PlatformIO khởi tạo],
+)[
+  #image(
+    "../assets/images/platformio_project_initialized.png",
+    width: 92%,
+  )
+]
+
+#note[
+  Không cần chỉnh sửa thủ công các file bên trong thư mục `.pio`. Nội dung trong thư mục này được PlatformIO quản lý và có thể được tạo lại trong quá trình build project.
+]
+
+
+== Viết chương trình đầu tiên
+
+Mở file `src/main.c` và nhập chương trình sau:
+
+#guide-code(
+  caption: [Chương trình Blink LED đầu tiên với EduFramework],
+)[
+  #raw(
+    block: true,
+    lang: "c",
+    "#include \"Arduino.h\"\n\nvolatile int counter = 0;\n\nint main(void)\n{\n    setup();\n\n    pinMode(LED_RED, OUTPUT);\n\n    while (1)\n    {\n        digitalWrite(LED_RED, LOW);\n        delay(500U);\n\n        digitalWrite(LED_RED, HIGH);\n        delay(500U);\n\n        counter++;\n    }\n\n    return 0;\n}",
+  )
+]
+
+Hàm `setup()` phải được gọi trước khi sử dụng các API của EduFramework. Hàm này thực hiện quá trình khởi tạo tối thiểu các thành phần phần cứng và tài nguyên cần thiết để framework có thể hoạt động trước khi chương trình ứng dụng tiếp tục thực thi.
+
+#warning[
+  Khi phát triển ứng dụng với EduFramework,bắt buộc phải gọi`setup()`và phải gọi`setup()`trước khi sử dụng bất kỳ API nào của framework. Việc bỏ qua bước khởi tạo này có thể dẫn đến treo hệ thống hoặc các hành vi không mong muốn trong quá trình thực thi chương trình.
+]
+
+== Build project
+
+Trước khi build, lưu toàn bộ các file đã chỉnh sửa.
+
+Chọn biểu tượng *Build* trên thanh công cụ PlatformIO ở phía dưới Visual Studio Code để bắt đầu biên dịch project.
+
+Khi quá trình build hoàn tất thành công, terminal sẽ hiển thị trạng thái `SUCCESS`.
+
+#guide-figure(
+  caption: [Kết quả build project EduFramework thành công],
+)[
+  #image(
+    "../assets/images/platformio_build_success.png",
+    width: 94%,
+  )
+]
+
+
+== Nạp chương trình lên bo mạch
+
+Kết nối bo mạch MaaZEDU với máy tính bằng cổng USB được sử dụng cho quá trình nạp chương trình và debug.
+
+Sau khi bo mạch đã được kết nối, chọn biểu tượng *Upload* trên thanh công cụ PlatformIO để nạp chương trình lên S32K144.
+
+PlatformIO sử dụng cấu hình `upload_protocol = jlink` trong `platformio.ini` để thực hiện quá trình nạp chương trình. Khi quá trình hoàn tất thành công, terminal sẽ hiển thị trạng thái `SUCCESS`.
+
+#guide-figure(
+  caption: [Kết quả upload chương trình lên S32K144 thành công],
+)[
+  #image(
+    "../assets/images/platformio_upload_success.png",
+    width: 94%,
+  )
+]
+
+= Debugging
+
+PlatformIO tích hợp debugger trực tiếp trong Visual Studio Code, cho phép tạm dừng chương trình, thực thi từng bước và theo dõi giá trị của các biến trong quá trình chạy. Phần này sử dụng project đã tạo ở phần trước để thực hiện một phiên debug cơ bản trên S32K144.
+
+== Bắt đầu phiên debug
+
+Đảm bảo bo mạch MaaZEDU vẫn được kết nối với máy tính qua cổng USB dùng cho nạp chương trình và debug.
+
+Trong Visual Studio Code, chọn biểu tượng PlatformIO trên Activity Bar. Trong mục *Debug*, chọn *Start Debugging* để bắt đầu phiên debug.
+
+#guide-figure(
+  caption: [Bắt đầu phiên debug từ PlatformIO],
+)[
+  #image(
+    "../assets/images/debug_start_session.png",
+    width: 92%,
+  )
+]
+
+PlatformIO sẽ chuẩn bị chương trình, kết nối với debugger và khởi động phiên debug. Sau khi quá trình hoàn tất, Visual Studio Code chuyển sang giao diện *Run and Debug*.
+
+Trong cấu hình hiện tại, chương trình có thể tạm dừng tại đầu hàm `main()` khi phiên debug bắt đầu. Từ thời điểm này, có thể sử dụng các công cụ debug để điều khiển quá trình thực thi chương trình.
+
+
+== Thanh điều khiển và breakpoint
+
+Khi phiên debug đang hoạt động, thanh điều khiển debug xuất hiện ở phía trên cửa sổ Visual Studio Code.
+
+#guide-figure(
+  caption: [Giao diện debug, thanh điều khiển và breakpoint],
+)[
+  #image(
+    "../assets/images/debug_toolbar_breakpoint.png",
+    width: 94%,
+  )
+]
+
+Các nút trên thanh điều khiển được sắp xếp từ trái sang phải như sau:
+
+#guide-table(
+  columns: (1.3fr, 1.1fr, 2.6fr),
+
+  headers: (
+    [Công cụ],
+    [Phím tắt],
+    [Chức năng],
+  ),
+
+  rows: (
+    (
+      [Continue],
+      [`F5`],
+      [Tiếp tục chạy chương trình cho đến khi gặp breakpoint tiếp theo hoặc một điều kiện làm chương trình dừng lại.],
+    ),
+    (
+      [Step Over],
+      [`F10`],
+      [Thực thi dòng hiện tại và chuyển sang dòng tiếp theo mà không đi vào bên trong hàm được gọi tại dòng đó.],
+    ),
+    (
+      [Step Into],
+      [`F11`],
+      [Đi vào bên trong hàm được gọi tại dòng hiện tại để tiếp tục debug từng lệnh bên trong hàm.],
+    ),
+    (
+      [Step Out],
+      [`Shift + F11`],
+      [Tiếp tục chạy cho đến khi thoát khỏi hàm hiện tại và quay lại hàm gọi.],
+    ),
+    (
+      [Restart],
+      [`Ctrl + Shift + F5`],
+      [Khởi động lại phiên debug từ đầu.],
+    ),
+    (
+      [Stop],
+      [`Shift + F5`],
+      [Kết thúc phiên debug hiện tại.],
+    ),
+  ),
+
+  caption: [Các công cụ điều khiển debug cơ bản],
+)
+
+Breakpoint là một điểm dừng được đặt tại một dòng mã nguồn. Khi chương trình chạy tới dòng có breakpoint, debugger sẽ tạm dừng quá trình thực thi để có thể quan sát biến và trạng thái chương trình.
+
+Để đặt breakpoint, nhấp vào vùng lề bên trái số dòng cần dừng. Một dấu tròn màu đỏ xuất hiện tại dòng đó. Nhấp lại vào cùng vị trí để bỏ breakpoint.
+
+Trong project hiện tại, đặt breakpoint tại dòng:
+
+#guide-code(
+  caption: [Dòng lệnh được sử dụng làm breakpoint],
+)[
+  #raw(
+    block: true,
+    lang: "c",
+    "counter++;",
+  )
+]
+
+
+== Theo dõi biến với Watch
+
+Cửa sổ *Watch* cho phép theo dõi trực tiếp giá trị của một biến hoặc biểu thức trong quá trình debug.
+
+Trong giao diện *Run and Debug*, mở mục *Watch*, chọn biểu tượng `+` và nhập:
+
+#command-block("counter")
+
+#guide-figure(
+  caption: [Thêm biến counter vào cửa sổ Watch],
+)[
+  #image(
+    "../assets/images/debug_add_watch.png",
+    width: 55%,
+  )
+]
+
+Sau khi được thêm vào Watch, giá trị của `counter` sẽ được cập nhật mỗi khi chương trình tạm dừng trong phiên debug.
+
+
+== Tiếp tục chương trình và quan sát kết quả
+
+Sau khi đặt breakpoint tại `counter++` và thêm biến `counter` vào Watch, chọn *Continue* (`F5`) để tiếp tục chạy chương trình.
+
+Chương trình sẽ thực thi cho đến khi gặp breakpoint tại dòng `counter++`, sau đó debugger sẽ tạm dừng tại vị trí này. Giá trị hiện tại của `counter` có thể được quan sát trong cửa sổ Watch.
+
+#guide-figure(
+  caption: [Quan sát giá trị counter tại breakpoint],
+)[
+  #image(
+    "../assets/images/debug_breakpoint_watch_result.png",
+    width: 94%,
+  )
+]
+
+Tiếp tục chọn *Continue* (`F5`) để chương trình chạy qua một chu kỳ tiếp theo. Khi breakpoint được kích hoạt lại, giá trị của `counter` thay đổi theo quá trình thực thi chương trình.
+
+Các công cụ *Step Over*, *Step Into* và *Step Out* có thể được sử dụng khi cần quan sát chi tiết hơn luồng thực thi của chương trình tại vị trí đang dừng.
+
+= Xử lý sự cố
+
+Phần này sẽ được hoàn thiện sau quá trình kiểm thử toàn bộ quy trình thiết lập và phát triển EduFramework trên một môi trường máy tính mới. Các vấn đề thực tế liên quan đến cài đặt công cụ, khởi tạo PlatformIO, build, upload và debug sẽ được tổng hợp cùng với hướng xử lý tương ứng.
+
+
+= Bước tiếp theo
+
+Sau khi hoàn thành các bước trong tài liệu này, môi trường phát triển EduFramework đã sẵn sàng để xây dựng, nạp và debug các ứng dụng trên S32K144 thông qua PlatformIO.
+
+EduFramework Laboratory Series tiếp tục giới thiệu các chức năng của framework thông qua hệ thống bài thực hành theo từng chủ đề. Các bài thực hành được xây dựng từ những chức năng cơ bản như Digital Output và Digital Input, sau đó mở rộng sang các ngoại vi và thiết bị được hỗ trợ bởi EduFramework.
+
+Toàn bộ tài liệu thực hành, project mẫu và mã nguồn liên quan được duy trì tại:
+
+#repo-link(
+  "EduFramework Laboratory Series",
+  "https://github.com/QuangTM15/EduFramework_Labs",
+)
+
+Các thành phần của EduFramework và Platform-NXPS32K có thể được tham khảo trực tiếp tại các repository tương ứng:
+
+#repo-link(
+  "EduFramework",
+  "https://github.com/QuangTM15/s32k144-edu-framework",
+)
+
+#repo-link(
+  "Platform-NXPS32K",
+  "https://github.com/QuangTM15/platform-nxps32k",
+)
+
+
+= Tài liệu tham khảo
+
+#references((
+  (
+    key: "git-docs",
+    type: "web",
+    author: [Git],
+    title: [Git Documentation],
+    url: "https://git-scm.com/doc",
+  ),
+  (
+    key: "github-docs",
+    type: "web",
+    author: [GitHub],
+    title: [GitHub Docs],
+    url: "https://docs.github.com/",
+  ),
+  (
+    key: "vscode-docs",
+    type: "web",
+    author: [Microsoft],
+    title: [Visual Studio Code Documentation],
+    url: "https://code.visualstudio.com/docs",
+  ),
+  (
+    key: "platformio-docs",
+    type: "web",
+    author: [PlatformIO],
+    title: [PlatformIO Documentation],
+    url: "https://docs.platformio.org/",
+  ),
+  (
+    key: "eduframework",
+    type: "web",
+    author: [QuangTM15],
+    title: [EduFramework for NXP S32K144],
+    url: "https://github.com/QuangTM15/s32k144-edu-framework",
+  ),
+  (
+    key: "platform-nxps32k",
+    type: "web",
+    author: [QuangTM15],
+    title: [Platform-NXPS32K],
+    url: "https://github.com/QuangTM15/platform-nxps32k",
+  ),
+  (
+    key: "eduframework-labs",
+    type: "web",
+    author: [QuangTM15],
+    title: [EduFramework Laboratory Series],
+    url: "https://github.com/QuangTM15/EduFramework_Labs",
+  ),
+))
