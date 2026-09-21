@@ -19,7 +19,7 @@
     title: [MFRC522 Standard performance MIFARE and NTAG frontend],
     revision: [3.9],
     year: [2016],
-    url: "https\\://www\.nxp.com/docs/en/data-sheet/MFRC522.pdf",
+    url: "https://www\.nxp.com/docs/en/data-sheet/MFRC522.pdf",
   ),
   (
     key: "alfaisal-rfid-lab",
@@ -28,7 +28,7 @@
     title: [Lab: RFID Access Control System],
     source: [SE322: Internet of Things Applications, College of Engineering, Alfaisal University],
     year: [2025],
-    url: "https\\://aniskoubaa.org/se322/lectures/lecture15/lab_notes/",
+    url: "https://aniskoubaa.org/se322/lectures/lecture15/lab_notes/",
   ),
   (
     key: "maazedu-guide",
@@ -42,7 +42,7 @@
     author: [EduFramework],
     title: [RC522 Device API],
     source: [EduFramework Source Code],
-    url: "https\\://github.com/QuangTM15/s32k144-edu-framework",
+    url: "https://github.com/QuangTM15/s32k144-edu-framework",
   ),
 )
 

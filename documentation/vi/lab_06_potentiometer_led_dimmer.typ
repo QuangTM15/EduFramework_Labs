@@ -18,7 +18,7 @@
     author: [The University of Texas at Austin],
     title: [Chapter 7: ADC, Data Acquisition, and Control],
     source: [Embedded Systems],
-    url: "https\://users.ece.utexas.edu/~valvano/mspm0/ebook/Ch7_ADC.htm",
+    url: "https://users.ece.utexas.edu/~valvano/mspm0/ebook/Ch7_ADC.htm",
   ),
   (
     key: "nxp-s32k-cookbook",
@@ -28,7 +28,7 @@
     document: [AN5413],
     revision: [5],
     year: [2020],
-    url: "https\://www\.nxp.com/docs/en/application-note/AN5413.pdf",
+    url: "https://www\.nxp.com/docs/en/application-note/AN5413.pdf",
   ),
   (
     key: "arduino-analog-in-out",
@@ -36,7 +36,7 @@
     author: [Arduino],
     title: [Analog In, Out Serial],
     source: [Built-in Examples],
-    url: "https\://docs.arduino.cc/built-in-examples/analog/AnalogInOutSerial/",
+    url: "https://docs.arduino.cc/built-in-examples/analog/AnalogInOutSerial/",
   ),
   (
     key: "eduframework-analog",
@@ -44,7 +44,7 @@
     author: [EduFramework],
     title: [Analog API],
     source: [EduFramework Source Code],
-    url: "https\://github.com/QuangTM15/s32k144-edu-framework",
+    url: "https://github.com/QuangTM15/s32k144-edu-framework",
   ),
 )
 

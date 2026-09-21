@@ -18,7 +18,7 @@
     author: [University of California, Berkeley],
     title: [Strapdown inertial navigation],
     source: [Rotations],
-    url: "https\://rotations.berkeley.edu/strapdown-inertial-navigation/",
+    url: "https://rotations.berkeley.edu/strapdown-inertial-navigation/",
   ),
   (
     key: "cornell-i2c",
@@ -26,7 +26,7 @@
     author: [Cornell University],
     title: [Inter-Integrated Circuit (I2C)],
     source: [ECE 4760 - Designing with Microcontrollers],
-    url: "https\://people.ece.cornell.edu/land/courses/ece4760/PIC32/index_i2c.html",
+    url: "https://people.ece.cornell.edu/land/courses/ece4760/PIC32/index_i2c.html",
   ),
   (
     key: "tdk-mpu6050",
@@ -36,7 +36,7 @@
     document: [PS-MPU-6000A-00],
     revision: [3.4],
     year: [2013],
-    url: "https\://invensense.tdk.com/wp-content/uploads/2015/02/MPU-6000-Datasheet.pdf",
+    url: "https://invensense.tdk.com/wp-content/uploads/2015/02/MPU-6000-Datasheet.pdf",
   ),
   (
     key: "nxp-s32k-datasheet",
@@ -46,7 +46,7 @@
     document: [S32K1XX],
     revision: [15],
     year: [2026],
-    url: "https\://www\.nxp.com/docs/en/data-sheet/S32K1xx.pdf",
+    url: "https://www\.nxp.com/docs/en/data-sheet/S32K1xx.pdf",
   ),
   (
     key: "maazedu-guide",
@@ -62,7 +62,7 @@
     author: [EduFramework],
     title: [MPU6050 Device API],
     source: [EduFramework Source Code],
-    url: "https\://github.com/QuangTM15/s32k144-edu-framework",
+    url: "https://github.com/QuangTM15/s32k144-edu-framework",
   ),
 )
 

@@ -18,7 +18,7 @@
     author: [University of Wisconsin-Madison],
     title: [Điều chế độ rộng xung],
     source: [ECE353 - Introduction to Microprocessor Systems],
-    url: "https\://ece353.engr.wisc.edu/peripheral-devices/pulse-width-modulation/",
+    url: "https://ece353.engr.wisc.edu/peripheral-devices/pulse-width-modulation/",
   ),
   (
     key: "nxp-s32k-cookbook",
@@ -28,7 +28,7 @@
     document: [AN5413],
     revision: [5],
     year: [2020],
-    url: "https\://www.nxp.com/docs/en/application-note/AN5413.pdf",
+    url: "https://www.nxp.com/docs/en/application-note/AN5413.pdf",
   ),
   (
     key: "arduino-analogwrite",
@@ -36,7 +36,7 @@
     author: [Arduino],
     title: [analogWrite()],
     source: [Arduino Language Reference],
-    url: "https\://docs.arduino.cc/language-reference/en/functions/analog-io/analogWrite/",
+    url: "https://docs.arduino.cc/language-reference/en/functions/analog-io/analogWrite/",
   ),
   (
     key: "ti-rgb-led",
@@ -45,7 +45,7 @@
     title: [MSP430 Software RGB LED Control Design Guide],
     document: [TIDU761],
     year: [2015],
-    url: "https\://www.ti.com/lit/ug/tidu761/tidu761.pdf",
+    url: "https://www.ti.com/lit/ug/tidu761/tidu761.pdf",
   ),
 )
 

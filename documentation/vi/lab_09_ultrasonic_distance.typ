@@ -18,7 +18,7 @@
     author: [New York University],
     title: [Lab: Ultrasonic Distance Sensor],
     source: [ITP Physical Computing],
-    url: "https\://itp.nyu.edu/physcomp/labs/lab-ultrasonic-distance-sensor/",
+    url: "https://itp.nyu.edu/physcomp/labs/lab-ultrasonic-distance-sensor/",
   ),
   (
     key: "osu-hcsr04",
@@ -26,7 +26,7 @@
     author: [Oregon State University],
     title: [Sonar Rangefinder HC-SR04],
     source: [TekBots],
-    url: "https\://eecs.engineering.oregonstate.edu/education/hardware/hcsr04/",
+    url: "https://eecs.engineering.oregonstate.edu/education/hardware/hcsr04/",
   ),
   (
     key: "hcsr04-datasheet",
@@ -34,7 +34,7 @@
     author: [SparkFun Electronics],
     title: [HC-SR04 Ultrasonic Sensor Datasheet],
     source: [Technical Datasheet],
-    url: "https\://cdn.sparkfun.com/datasheets/Sensors/Proximity/HCSR04.pdf",
+    url: "https://cdn.sparkfun.com/datasheets/Sensors/Proximity/HCSR04.pdf",
   ),
   (
     key: "nxp-s32k-cookbook",
@@ -44,7 +44,7 @@
     document: [AN5413],
     revision: [5],
     year: [2020],
-    url: "https\://www.nxp.com/docs/en/application-note/AN5413.pdf",
+    url: "https://www.nxp.com/docs/en/application-note/AN5413.pdf",
   ),
   (
     key: "maazedu-guide",
@@ -58,7 +58,7 @@
     author: [EduFramework],
     title: [Ultrasonic Device API],
     source: [EduFramework Source Code],
-    url: "https\://github.com/QuangTM15/s32k144-edu-framework",
+    url: "https://github.com/QuangTM15/s32k144-edu-framework",
   ),
 )
 
