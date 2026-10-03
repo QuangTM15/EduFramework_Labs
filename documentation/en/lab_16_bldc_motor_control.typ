@@ -19,7 +19,7 @@
     title: [Course Notes 7: Permanent Magnet "Brushless DC" Motors],
     source: [MIT OpenCourseWare - 6.685 Electric Machines],
     year: [2013],
-    url: "https\://ocw\.mit.edu/courses/6-685-electric-machines-fall-2013/resources/mit6_685f13_chapter7/",
+    url: "https://ocw\.mit.edu/courses/6-685-electric-machines-fall-2013/resources/mit6_685f13_chapter7/",
   ),
   (
     key: "ieee-bldc-review",
@@ -28,7 +28,7 @@
     title: [A Review of BLDC Motor: State of Art, Advanced Control Techniques, and Applications],
     source: [IEEE Access, Vol. 10, pp. 54833-54869],
     year: [2022],
-    url: "https\://doi.org/10.1109/ACCESS.2022.3175011",
+    url: "https://doi.org/10.1109/ACCESS.2022.3175011",
   ),
   (
     key: "fab-esc",
@@ -37,7 +37,7 @@
     title: [Output Devices - Brushless Motor and ESC],
     source: [Fab Academy - Sorbonne Lab],
     year: [2019],
-    url: "https\://fabacademy.org/2019/labs/sorbonne/students/hanneuse-luc/assignments/week12/",
+    url: "https://fabacademy.org/2019/labs/sorbonne/students/hanneuse-luc/assignments/week12/",
   ),
   (
     key: "nxp-s32k-datasheet",
@@ -47,7 +47,7 @@
     document: [S32K1XX],
     revision: [15],
     year: [2026],
-    url: "https\://www\.nxp.com/docs/en/data-sheet/S32K1xx.pdf",
+    url: "https://www\.nxp.com/docs/en/data-sheet/S32K1xx.pdf",
   ),
   (
     key: "arduino-language",
@@ -55,7 +55,7 @@
     author: [Arduino],
     title: [Arduino Language Reference],
     source: [Arduino Documentation],
-    url: "https\://docs.arduino.cc/language-reference/",
+    url: "https://docs.arduino.cc/language-reference/",
   ),
   (
     key: "eduframework-esc",
@@ -63,7 +63,7 @@
     author: [EduFramework],
     title: [ESC Device API],
     source: [EduFramework Source Code],
-    url: "https\://github.com/QuangTM15/s32k144-edu-framework",
+    url: "https://github.com/QuangTM15/s32k144-edu-framework",
   ),
   (
     key: "maazedu-guide",
