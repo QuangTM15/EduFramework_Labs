@@ -1,7 +1,5 @@
 #include "Arduino.h"
 #include "can.h"
-#define CAN_BITRATE (500000UL)
-#define CAN_ID      (0x100UL)
 int main(void)
 {
     CAN_Frame_t txFrame = {0};
@@ -9,14 +7,13 @@ int main(void)
     uint8_t value = 0U;
     setup();
     Serial1_begin(9600U);
-    if ((false == CAN_begin(CAN_BITRATE)) ||
-        (false == CAN_setMode(CAN_MODE_LOOPBACK)))
-    {
+    if ((false == CAN_begin(500000UL)) ||(false == CAN_setMode(CAN_MODE_LOOPBACK)))
+    { 
         Serial1_println("CAN initialization failed.");
         while (1) {}
     }
     Serial1_println("=== CAN Loopback Demo ===");
-    txFrame.id = CAN_ID;
+    txFrame.id = 0x100UL;
     txFrame.format = CAN_STANDARD;
     txFrame.length = 1U;
     while (1)
