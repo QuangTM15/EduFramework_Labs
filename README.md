@@ -47,7 +47,7 @@ EduFramework_Labs/
 │   │   └── lab_01_blink_led.pdf
 │   └── en/                    # Generated English PDFs
 │       └── lab_01_blink_led.pdf
-├── labs/                      # Embedded lab projects (not required for docs setup)
+├── labs/                      # Embedded lab projects
 ├── tools/
 │   ├── lab.ps1                # Documentation build CLI
 │   └── docs-builder/
@@ -72,18 +72,18 @@ You can also open the EXE in File Explorer. **Keep the EXE inside the cloned rep
 
 ### Application actions
 
-| Action | Description |
-| --- | --- |
-| **Refresh** | Stop Watch, close Live Preview, clear the log, and rescan labs |
-| **Build** | Compile the selected lab to PDF |
-| **Rebuild** | Clean and compile the selected lab again |
-| **Clean** | Remove the selected generated PDF |
-| **Build All** | Compile all available labs for the selected language(s) |
-| **Clean All** | Remove generated lab PDFs for the selected language(s) |
-| **Watch** | Recompile the selected lab on source changes and show Live Preview |
-| **Stop Watch** | Stop automatic compilation and close Live Preview |
-| **Open Source** | Open the selected `.typ` source file |
-| **Open PDF** | Open the generated PDF |
+| Action          | Description                                                        |
+| --------------- | ------------------------------------------------------------------ |
+| **Refresh**     | Stop Watch, close Live Preview, clear the log, and rescan labs     |
+| **Build**       | Compile the selected lab to PDF                                    |
+| **Rebuild**     | Clean and compile the selected lab again                           |
+| **Clean**       | Remove the selected generated PDF                                  |
+| **Build All**   | Compile all available labs for the selected language(s)            |
+| **Clean All**   | Remove generated lab PDFs for the selected language(s)             |
+| **Watch**       | Recompile the selected lab on source changes and show Live Preview |
+| **Stop Watch**  | Stop automatic compilation and close Live Preview                  |
+| **Open Source** | Open the selected `.typ` source file                               |
+| **Open PDF**    | Open the generated PDF                                             |
 
 Choose a laboratory and select **Vietnamese**, **English**, or **Both** as available. Live Preview supports one language at a time. Build errors and other command output appear in the Build Log.
 
@@ -127,13 +127,3 @@ Other supported commands include `build-all`, `clean-all`, `list`, and `help`. R
 ```powershell
 .\lab.cmd help
 ```
-
-## Troubleshooting
-
-- **`typst` not recognized:** Open a new terminal after installation and rerun `setup.ps1`.
-- **`winget` not found:** Install or enable Windows Package Manager (App Installer), or manually install the missing dependencies before rerunning setup.
-- **Live Preview fails:** Check that Microsoft Edge WebView2 Runtime is installed.
-- **Application cannot find the repository:** Run the published EXE from within the cloned `EduFramework_Labs` directory tree.
-- **Build fails:** Inspect the Build Log, verify the `.typ` syntax, and check that referenced templates/assets exist.
-
-The generated `publish/`, `bin/`, and `obj/` directories are local build outputs and should not be committed to Git.
