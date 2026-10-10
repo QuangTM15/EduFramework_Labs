@@ -1,0 +1,45 @@
+
+# ============================================================
+# EduFramework Docs Builder - .gitignore
+# ============================================================
+
+# .NET build outputs
+bin/
+obj/
+
+# Visual Studio user-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# IDE settings
+.vs/
+.vscode/
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# Test results and coverage
+TestResults/
+coverage/
+coverage.cobertura.xml
+*.coverage
+*.coveragexml
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+
+# Local NuGet packages
+packages/
+
+# Publish outputs
+publish/
+
+# Windows temporary files
+Thumbs.db
+Desktop.ini
+# ============================================================
