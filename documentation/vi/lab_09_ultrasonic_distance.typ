@@ -161,6 +161,7 @@ và `ECHO` được cấu hình là Digital Input. Device API thực hiện tu�
 phát xung kích hoạt, chờ `ECHO`, đo độ rộng xung và xử lý kết quả
 #cite-ref(refs, "eduframework-ultrasonic").
 
+
 == Từ thời gian ECHO đến khoảng cách
 
 Gọi $t$ là thời gian sóng siêu âm đi từ cảm biến tới vật thể rồi quay trở lại và
@@ -170,22 +171,22 @@ $ d = (v times t) / 2 $
 
 Phép chia cho `2` xuất hiện vì thời gian đo bao gồm cả hành trình đi và hành
 trình quay về của tín hiệu. HC-SR04 có thể quy đổi thời gian `ECHO` theo
-microsecond sang khoảng cách bằng quan hệ xấp xỉ `µs / 58 = cm`
+micro giây sang khoảng cách bằng quan hệ xấp xỉ `µs / 58 = cm`
 #cite-ref(refs, "hcsr04-datasheet").
 
-Implementation hiện tại của EduFramework sử dụng hệ số `0.017` để chuyển độ
-rộng xung `ECHO` theo microsecond thành centimet:
-
-`distance_cm = duration_us × 0.017`
+Phần triển khai hiện tại của EduFramework sử dụng hệ số `0.017` để chuyển độ
+rộng xung `ECHO` tính bằng micro giây thành khoảng cách tính bằng centimet: `distance_cm = duration_us × 0.017`
 
 Giá trị này tương ứng với phép quy đổi khoảng cách dựa trên thời gian truyền
 hai chiều của sóng siêu âm #cite-ref(refs, "hcsr04-datasheet")
 #cite-ref(refs, "eduframework-ultrasonic").
 
-Ultrasonic Device còn sử dụng thời gian chờ để tránh chương trình chờ vô hạn khi
-không nhận được tín hiệu `ECHO` hợp lệ. Với cấu hình mặc định, thời gian chờ là
-`30000 µs`; khi phép đo không hợp lệ, API đọc khoảng cách trả về giá trị lỗi
-`ULTRASONIC_INVALID_DISTANCE_CM` #cite-ref(refs, "eduframework-ultrasonic").
+Thư viện thiết bị siêu âm còn sử dụng cơ chế giới hạn thời gian chờ để tránh
+chương trình chờ vô hạn khi không nhận được tín hiệu `ECHO` hợp lệ. Với cấu
+hình mặc định, thời gian chờ là `30000 µs`; khi phép đo không hợp lệ, API đọc
+khoảng cách trả về giá trị lỗi `ULTRASONIC_INVALID_DISTANCE_CM`
+#cite-ref(refs, "eduframework-ultrasonic").
+
 
 // ============================================================================
 // 3. THIẾT LẬP PHẦN CỨNG
