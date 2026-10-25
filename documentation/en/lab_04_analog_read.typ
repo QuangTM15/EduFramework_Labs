@@ -142,7 +142,13 @@ The analog-to-digital conversion process can be described using two basic concep
 
 $ F_s = 1 / T_s $
 
-After sampling, the amplitude of each sample must be represented using a finite number of levels. The process of assigning an analog value to one of the available digital levels is called *quantization*. Because the number of representable levels is finite, the resulting digital value is only a discrete representation of the input voltage. Quantization error is the difference that occurs when the actual value is rounded to the nearest LSB level; increasing ADC resolution reduces the size of each quantization step #cite-ref(refs, "iowa-sampling").
+After sampling, the amplitude of each sample must be represented using a finite number of levels. The process
+of assigning an analog value to one of the available digital levels is called quantization. Because the number of
+representable levels is finite, the resulting digital value is only a discrete representation of the input voltage.
+
+Quantization error is the difference between the actual analog value and its quantized representation. When
+rounding to the nearest quantization level, this error typically does not exceed half a quantization step
+(0.5 LSB – Least Significant Bit). Increasing ADC resolution reduces the size of each quantization step.#cite-ref(refs, "iowa-sampling").
 
 == ADC Resolution
 

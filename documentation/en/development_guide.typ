@@ -1083,7 +1083,7 @@ Next, configure the email address:
   "git config --global user.email \"your-email@example.com\"",
 )
 
-Here, `Your Name` is the name recorded in commits and `your-email\@example.com` is the user email address. The `user.name` value does not have to match the GitHub username.
+Here, `Your Name` is the name recorded in commits and `your-email@example.com` is the user email address. The `user.name` value does not have to match the GitHub username.
 
 The `--global` option applies these values to Git repositories for the current user account on the computer.
 
@@ -1166,7 +1166,7 @@ In the Visual Studio Code Explorer, create the `src` directory, then create `mai
 The initial project structure is as follows:
 
 #file-tree(
-  title: [Cấu trúc project EduFramework],
+  title: [EduFramework Project Structure],
 )[
   #text[
     EduFramework_First_Project/ \

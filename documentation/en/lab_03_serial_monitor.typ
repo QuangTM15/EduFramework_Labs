@@ -452,7 +452,7 @@ The basic APIs in the main exercise focus on transmitting strings. In measuremen
 `Serial1_printInt()` transmits a signed integer value through `Serial1`, while `Serial1_printlnInt()` performs the same operation and terminates the line after the value.
 
 #info-table(
-  columns: (1.5fr, 1.5fr, 2.4fr),
+  columns: (1.4fr, 2.1fr, 2fr),
   alignments: (
     left + horizon,
     left + horizon,
@@ -465,13 +465,14 @@ The basic APIs in the main exercise focus on transmitting strings. In measuremen
   ),
   rows: (
     (
-      [`Serial1_printInt()`],
-      [`Serial1_printInt(value);`],
-      [Prints an integer value without automatically terminating the line.],
+      [#text(size: 8pt)[`Serial1_printInt()`]],
+      [#text(size: 8pt)[`Serial1_printInt(value);`]],
+      [Prints an integer value without \
+        automatically terminating the line.],
     ),
     (
-      [`Serial1_printlnInt()`],
-      [`Serial1_printlnInt(value);`],
+      [#text(size: 8pt)[`Serial1_printlnInt()`]],
+      [#text(size: 8pt)[`Serial1_printlnInt(value);`]],
       [Prints an integer value and terminates the line.],
     ),
   ),

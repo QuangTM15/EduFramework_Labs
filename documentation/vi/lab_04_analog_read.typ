@@ -170,9 +170,11 @@ Sau khi lấy mẫu, giá trị biên độ của mẫu cần được biểu di
 các mức. Quá trình gán giá trị analog vào một mức số có thể biểu diễn được gọi
 là *quantization*. Do số mức biểu diễn là hữu hạn, giá trị số thu được chỉ là
 một biểu diễn rời rạc của điện áp đầu vào.
-Quantization error là sai khác xuất hiện khi giá trị thực được làm tròn về mức
-LSB gần nhất; tăng độ phân giải ADC làm giảm kích thước của mỗi bước lượng tử
-#cite-ref(refs, "iowa-sampling").
+Quantization error là sai khác giữa giá trị analog thực tế và giá trị được
+biểu diễn sau lượng tử hóa. Sai số này thường không vượt quá một nửa bước
+lượng tử (0,5 LSB – Least Significant Bit) khi sử dụng phương pháp làm tròn
+đến mức gần nhất. Tăng độ phân giải ADC giúp giảm kích thước của mỗi bước
+lượng tử #cite-ref(refs, "iowa-sampling").
 
 == Độ phân giải ADC
 
@@ -213,7 +215,7 @@ Kết quả ADC thô có 4096 mã, từ `0` đến `4095`.
 
 Giá trị `0` và `4095` là các mã số ở hai đầu dải chuyển đổi, không phải đơn vị
 điện áp hoặc đơn vị ánh sáng. Quan hệ giữa một mã ADC và điện áp phụ thuộc vào
-điện áp tham chiếu của ADC.Trong EduFramework của bài
+điện áp tham chiếu của ADC. Trong EduFramework của bài
 lab này, độ phân giải đã được framework cấu hình cố định ở 12 bit nên ứng dụng
 không cần thay đổi độ phân giải trước khi đọc.
 
