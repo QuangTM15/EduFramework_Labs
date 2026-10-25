@@ -620,12 +620,10 @@
       size: 9.7pt,
       fill: text-black,
     )
-
     #set par(
       justify: true,
       leading: 0.80em,
     )
-
     #text(
       font: "Consolas",
       size: 9.8pt,
@@ -634,39 +632,30 @@
     )[
       #name
     ]
-
     #v(3pt)
-
     #line(
       length: 100%,
       stroke: 0.6pt + border-gray,
     )
-
     #if description != none [
       #v(7pt)
       #description
     ]
-
     #if syntax != none [
       #v(9pt)
-
       #text(
         size: 9pt,
         weight: "bold",
       )[
         #syntax-label
       ]
-
       #v(4pt)
-
       #block(
         width: 100%,
         fill: rgb("#F6F6F6"),
-
         stroke: (
           left: 1.5pt + border-gray,
         ),
-
         inset: (
           left: 10pt,
           right: 10pt,
@@ -682,47 +671,36 @@
         ]
       ]
     ]
-
     #if parameters.len() > 0 [
       #v(9pt)
-
       #text(
         size: 9pt,
         weight: "bold",
       )[
         #parameters-label
       ]
-
       #v(4pt)
-
       #table(
         columns: (0.75fr, 1.35fr, 2.4fr),
-
         align: (
           center + horizon,
           center + horizon,
           left + horizon,
         ),
-
         stroke: 0.35pt + rgb("#DDDDDD"),
         inset: 5pt,
-
         table.header(
           repeat: true,
-
           table.cell(fill: table-header-gray, align: center + horizon)[
             #text(size: 8.6pt, weight: "bold")[#parameter-label]
           ],
-
           table.cell(fill: table-header-gray, align: center + horizon)[
             #text(size: 8.6pt, weight: "bold")[#type-label]
           ],
-
           table.cell(fill: table-header-gray, align: center + horizon)[
             #text(size: 8.6pt, weight: "bold")[#description-label]
           ],
         ),
-
         ..parameters
           .map(parameter => (
             [
@@ -734,7 +712,6 @@
                 #parameter.at(0)
               ]
             ],
-
             [
               #if parameter.len() >= 3 [
                 #parameter.at(1)
@@ -742,7 +719,6 @@
                 —
               ]
             ],
-
             [
               #if parameter.len() >= 3 [
                 #parameter.at(2)
@@ -754,7 +730,6 @@
           .flatten(),
       )
     ]
-
     #if returns != none [
       #v(9pt)
 

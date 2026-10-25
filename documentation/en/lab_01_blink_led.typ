@@ -348,29 +348,26 @@ pinMode(LED_RED, OUTPUT);
 
 `digitalWrite()` is used to set the logic state of a Digital Output pin.
 
+#pagebreak()
+
 #api-detail(
   name: "digitalWrite",
-
   syntax: [digitalWrite(pin, value);],
-
   description: [
     Sets the logic state of the specified Logical Pin.
   ],
-
   parameters: (
     (
       [pin],
       [Logical Pin],
       [Pin to be controlled, for example `LED_RED`.],
     ),
-
     (
       [value],
       [`HIGH` / `LOW`],
       [Logic state to be applied to the output pin.],
     ),
   ),
-
   returns: [No return value.],
 )
 
