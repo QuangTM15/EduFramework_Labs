@@ -37,7 +37,7 @@
     document: [PS-MPU-6000A-00],
     revision: [3.4],
     year: [2013],
-    url: "https://invensense.tdk.com/wp-content/uploads/2015/02/MPU-6000-Datasheet.pdf",
+    url: "https://product.tdk.com/system/files/dam/doc/product/sensor/mortion-inertial/imu/data_sheet/mpu-6000-datasheet1.pdf",
   ),
   (
     key: "nxp-s32k-datasheet",
@@ -52,8 +52,8 @@
   (
     key: "maazedu-guide",
     type: "manual",
-    author: [MaaZEDU],
-    title: [MaaZEDU Development Board Guide],
+    author: [FPT Software],
+    title: [MaaZ Edu Development Board - User Manual],
     revision: [1.0],
     year: [2025],
   ),
@@ -76,7 +76,7 @@
   number: 11,
   language: "vi",
   title: [Giám sát dữ liệu chuyển động với MPU6050],
-  subtitle: [Đọc gia tốc và vận tốc góc bằng MPU6050 Device API với EduFramework],
+  subtitle: [Đo gia tốc và vận tốc góc với MPU6050 qua EduFramework],
 )
 
 
@@ -88,17 +88,16 @@
 
 == Tổng quan bài lab
 
-MPU6050 là một cảm biến chuyển động tích hợp bộ đo gia tốc ba trục và con quay
-hồi chuyển ba trục. Hai nhóm cảm biến này cung cấp các phép đo theo ba trục
-vuông góc, cho phép một hệ thống nhúng quan sát sự thay đổi chuyển động và tốc
-độ quay của đối tượng gắn cảm biến #cite-ref(refs, "berkeley-imu").
+MPU6050 là cảm biến chuyển động sáu trục, tích hợp gia tốc kế ba trục và con quay
+hồi chuyển ba trục. Thiết bị đo gia tốc riêng và vận tốc góc theo các trục X, Y,
+Z, nhờ đó cung cấp dữ liệu về trạng thái chuyển động của vật thể gắn cảm biến
+#cite-ref(refs, "tdk-mpu6050").
 
-Bài lab này tập trung vào cách sử dụng MPU6050 thông qua Device API của
-EduFramework thay vì thao tác trực tiếp với các thanh ghi của cảm biến. Chương
-trình khởi tạo module bằng cấu hình mặc định, đọc đồng thời dữ liệu gia tốc, vận
-tốc góc và nhiệt độ cảm biến, sau đó hiển thị kết quả trên Serial Monitor. Phần
-mở rộng giới thiệu các API đọc chọn lọc, hiệu chuẩn và giao diện nâng cao cho
-phép thay đổi địa chỉ I2C cũng như dải đo của gia tốc kế và con quay hồi chuyển
+Bài lab sử dụng giao diện lập trình thiết bị (Device API) của EduFramework thay
+vì thao tác trực tiếp với thanh ghi MPU6050. Chương trình khởi tạo cảm biến,
+đọc gia tốc, vận tốc góc và nhiệt độ bên trong cảm biến, sau đó hiển thị các
+giá trị trên Serial Monitor. Các chức năng đọc riêng từng đại lượng, hiệu chuẩn,
+chọn địa chỉ I2C và dải đo được giới thiệu ở phần Mở rộng
 #cite-ref(refs, "eduframework-mpu6050").
 
 
@@ -136,40 +135,44 @@ phép thay đổi địa chỉ I2C cũng như dải đo của gia tốc kế và
 
 = Kiến thức nền
 
-== gia tốc kế và con quay hồi chuyển
+== Gia tốc kế và con quay hồi chuyển
 
-Một IMU điển hình sử dụng ba gia tốc kế và ba rate con quay hồi chuyển được bố trí
-trên ba trục vuông góc. Con quay hồi chuyển cung cấp các thành phần vận tốc góc của
-vật thể theo các trục cảm biến, trong khi gia tốc kế cung cấp phép đo
-specific force theo các trục tương ứng #cite-ref(refs, "berkeley-imu").
+MPU6050 là một đơn vị đo quán tính (Inertial Measurement Unit - IMU) gồm gia
+tốc kế và con quay hồi chuyển ba trục. Gia tốc kế đo *gia tốc riêng* (specific
+force), còn con quay hồi chuyển đo vận tốc góc quanh từng trục. Hai loại dữ liệu
+này bổ sung cho nhau khi quan sát chuyển động của cảm biến
+#cite-ref(refs, "berkeley-imu") #cite-ref(refs, "tdk-mpu6050").
 
-Trong EduFramework, các giá trị gia tốc kế của MPU6050 được quy đổi sang đơn
-vị `g`, còn dữ liệu con quay hồi chuyển được quy đổi sang `dps` (degree per second). Khi
-module đứng yên, dữ liệu gia tốc kế vẫn phản ánh ảnh hưởng của trọng lực nên
-một trục có thể có độ lớn gần `1 g` tùy theo hướng đặt cảm biến. Dữ liệu con quay hồi chuyển
-khi đứng yên thường nằm gần `0 dps`, nhưng có sai lệch offset và nhiễu #cite-ref(refs, "berkeley-imu")
+Trong EduFramework, dữ liệu gia tốc được biểu diễn bằng đơn vị `g` (gia tốc
+trọng trường tiêu chuẩn), còn vận tốc góc sử dụng `dps` (độ trên giây). Khi
+cảm biến đứng yên, gia tốc kế vẫn đo ảnh hưởng của trọng lực: nếu một trục gần
+thẳng đứng, giá trị trên trục đó có độ lớn xấp xỉ `1 g`. Ngược lại, các giá trị
+vận tốc góc thường gần `0 dps`, nhưng vẫn có thể xuất hiện sai lệch điểm không
+(offset) và nhiễu #cite-ref(refs, "berkeley-imu")
 #cite-ref(refs, "eduframework-mpu6050").
 
 #note[
-  con quay hồi chuyển cung cấp vận tốc góc, không trực tiếp cung cấp góc quay. Việc suy ra
-  orientation, pitch, roll hoặc yaw từ dữ liệu IMU cần các bước xử lý bổ sung
-  và không nằm trong phạm vi của bài lab này.
+  Con quay hồi chuyển đo vận tốc góc, không trực tiếp trả về góc quay. Việc
+  ước lượng các góc định hướng như góc nghiêng ngang (roll), nghiêng dọc
+  (pitch) hoặc hướng quay (yaw) cần xử lý dữ liệu bổ sung và không thuộc
+  phạm vi bài lab này.
 ]
 
 
 == Giao tiếp I2C
 
-I2C là một bus nối tiếp đồng bộ hai dây. `SCL` mang tín hiệu clock, còn `SDA`
-được sử dụng để truyền dữ liệu. Nhiều thiết bị có thể chia sẻ cùng bus và được
-phân biệt bằng địa chỉ của từng peripheral #cite-ref(refs, "cornell-i2c").
+I2C là bus truyền thông nối tiếp đồng bộ sử dụng hai đường tín hiệu: `SCL`
+(Serial Clock) truyền xung nhịp và `SDA` (Serial Data) truyền dữ liệu. Nhiều
+thiết bị có thể dùng chung hai đường tín hiệu; bộ điều khiển phân biệt từng
+thiết bị thông qua địa chỉ I2C #cite-ref(refs, "cornell-i2c").
 
-MPU6050 sử dụng I2C làm giao tiếp host trong cấu hình của bài lab. Bit địa chỉ thấp nhất được xác định bởi chân `AD0`: khi `AD0` ở
-mức thấp, địa chỉ slave là `0x68`; khi `AD0` ở mức cao, địa chỉ trở thành
-`0x69` #cite-ref(refs, "tdk-mpu6050").
+Trong bài lab, S32K144 giao tiếp với MPU6050 qua I2C. Chân `AD0` quyết định
+bit thấp nhất của địa chỉ I2C 7 bit: ở mức logic thấp, địa chỉ là `0x68`; ở
+mức logic cao, địa chỉ là `0x69` #cite-ref(refs, "tdk-mpu6050").
 
-Luồng dữ liệu của bài lab có thể mô tả bằng sơ đồ:
+Luồng dữ liệu của ứng dụng:
 
-`MPU6050` → `I2C` → `Wire / LPI2C` → `MPU6050 Device API` → `Application`
+`MPU6050` → `I2C` → `Wire / LPI2C` → `MPU6050 Device API` → `Ứng dụng`
 
 
 // ============================================================================
@@ -181,27 +184,28 @@ Luồng dữ liệu của bài lab có thể mô tả bằng sơ đồ:
 == Phần cứng sử dụng
 
 Bài thực hành sử dụng MaaZEDU Development Board và một module MPU6050. MaaZEDU
-là board phát triển dựa trên vi điều khiển S32K144 #cite-ref(refs, "maazedu-guide").
-Module được cấp nguồn `3.3V`, dùng chung `GND` với board và trao đổi dữ liệu qua
-giao tiếp I2C #cite-ref(refs, "tdk-mpu6050").
+là bo mạch phát triển sử dụng vi điều khiển NXP S32K144
+#cite-ref(refs, "maazedu-guide") #cite-ref(refs, "nxp-s32k-datasheet").
+Module được cấp nguồn `3.3V`, nối chung `GND` với bo mạch và trao đổi dữ liệu
+qua giao tiếp I2C #cite-ref(refs, "tdk-mpu6050").
 
 #hardware-table(
   caption: [Phần cứng sử dụng trong bài thực hành],
   rows: (
     (
       [MaaZEDU Development Board],
-      [Board phát triển sử dụng vi điều khiển S32K144.],
+      [Bo mạch phát triển sử dụng vi điều khiển S32K144.],
     ),
     (
       [MPU6050 module],
       [Module cảm biến tích hợp gia tốc kế ba trục và con quay hồi chuyển ba trục.],
     ),
     (
-      [Jumper wires],
+      [Dây nối],
       [Kết nối nguồn và các tín hiệu I2C giữa MPU6050 với MaaZEDU.],
     ),
     (
-      [USB Cable],
+      [Cáp USB],
       [
         Kết nối board với máy tính để cấp nguồn, nạp chương trình và sử dụng
         Serial Monitor.
@@ -213,9 +217,10 @@ giao tiếp I2C #cite-ref(refs, "tdk-mpu6050").
 
 == Ánh xạ tín hiệu I2C
 
-Trong cấu hình EduFramework hiện tại, giao tiếp I2C0 sử dụng các tín hiệu
-`I2C0_SCL` và `I2C0_SDA`. Hai tín hiệu này được sử dụng bởi Wire API và bởi
-MPU6050 Device API trong bài thực hành #cite-ref(refs, "eduframework-mpu6050").
+Trong cấu hình EduFramework sử dụng cho bài lab, bus I2C0 được ánh xạ tới
+`I2C0_SCL` (`PTA3`) và `I2C0_SDA` (`PTA2`). Giao diện Wire và trình điều khiển
+MPU6050 dùng các chân này để trao đổi dữ liệu
+#cite-ref(refs, "eduframework-mpu6050").
 
 #pin-table(
   caption: [Ánh xạ tín hiệu MPU6050 sử dụng trong bài thực hành],
@@ -224,13 +229,13 @@ MPU6050 Device API trong bài thực hành #cite-ref(refs, "eduframework-mpu6050
       [MPU6050 `SCL`],
       "I2C0_SCL",
       "PTA3",
-      [I2C Clock],
+      [Xung nhịp I2C],
     ),
     (
       [MPU6050 `SDA`],
       "I2C0_SDA",
       "PTA2",
-      [I2C Data],
+      [Dữ liệu I2C],
     ),
   ),
 )
@@ -238,23 +243,26 @@ MPU6050 Device API trong bài thực hành #cite-ref(refs, "eduframework-mpu6050
 
 == Kết nối MPU6050
 
-Trong cấu hình mặc định của bài lab, `VCC` được nối với `3.3V`, `GND` nối với
-`GND`, `SCL` nối với `I2C0_SCL` và `SDA` nối với `I2C0_SDA`. Chân `AD0` được đặt
-ở mức thấp bằng cách nối với `GND`, vì vậy Device sử dụng địa chỉ mặc định
-`0x68` #cite-ref(refs, "tdk-mpu6050") #cite-ref(refs, "eduframework-mpu6050").
+Nối `VCC` của module với `3.3V`, `GND` với `GND`, `SCL` với `I2C0_SCL` và
+`SDA` với `I2C0_SDA`. Để dùng địa chỉ mặc định `0x68`, chân `AD0` phải ở mức
+logic thấp. Nếu module không có sẵn mạch kéo xuống, cần nối `AD0` với `GND`;
+kiểm tra sơ đồ chân của module thực tế trước khi cấp nguồn
+#cite-ref(refs, "tdk-mpu6050") #cite-ref(refs, "eduframework-mpu6050").
 
 #figure-block(
-  caption: [Sơ đồ kết nối MPU6050 với MaaZEDU Development Board],
+  caption: [Bốn kết nối nguồn và I2C giữa MPU6050 với MaaZEDU],
 )[
   #image(
     "../assets/circuits/mpu6050_circuit.png",
-    width: 88%,
+    width: 82%,
   )
 ]
 
 #note[
-  Chân `INT` không được sử dụng trong bài thực hành này. Dữ liệu được đọc chủ
-  động bằng `MPU_ReadData()` theo chu kỳ của chương trình.
+  Hình minh họa bốn kết nối chính và không thể hiện chân `AD0`. Trước khi
+  chạy chương trình, cần bảo đảm `AD0` ở mức thấp để sử dụng địa chỉ `0x68`.
+  Chân `INT` không được sử dụng vì chương trình đọc dữ liệu theo chu kỳ bằng
+  `MPU_ReadData()`.
 ]
 
 
@@ -264,18 +272,19 @@ Trong cấu hình mặc định của bài lab, `VCC` được nối với `3.3V
 
 = EduFramework API
 
-MPU6050 Device của EduFramework cung cấp một nhóm API đơn giản cho các ứng dụng
-cơ bản và một nhóm API nâng cao cho các trường hợp cần cấu hình chi tiết. Bài
-thực hành chính sử dụng `MPU_Data_t`, `MPU_Begin()` và `MPU_ReadData()`; các API
-cấu hình nâng cao được trình bày trong phần Mở rộng
+EduFramework cung cấp nhóm API cơ bản (Beginner API) để sử dụng MPU6050
+với cấu hình mặc định và nhóm API nâng cao (Advanced API) để quản lý cấu hình
+thông qua một đối tượng ngữ cảnh. Bài thực hành chính chỉ cần `MPU_Data_t`,
+`MPU_Begin()` và `MPU_ReadData()`. Các API khác được giới thiệu trong phần
+Mở rộng #cite-ref(refs, "eduframework-mpu6050").
+
+
+== Cấu trúc MPU_Data_t
+
+`MPU_Data_t` là cấu trúc lưu kết quả đo trên ba trục và nhiệt độ cảm biến.
+Sau khi `MPU_ReadData()` trả về `true`, ứng dụng truy cập từng thành phần của
+biến dữ liệu bằng toán tử dấu chấm (`.`)
 #cite-ref(refs, "eduframework-mpu6050").
-
-
-== Cấu trúc `MPU_Data_t`
-
-`MPU_Data_t` gom các giá trị của một lần đọc cảm biến vào một cấu trúc duy nhất.
-Ứng dụng có thể truy cập trực tiếp từng trường sau khi `MPU_ReadData()` hoàn tất
-thành công #cite-ref(refs, "eduframework-mpu6050").
 
 #block(breakable: false)[
   #code-listing(
@@ -317,29 +326,30 @@ thành công #cite-ref(refs, "eduframework-mpu6050").
         #align(center + horizon)[*Đơn vị*]
       ],
     ),
-    [`accelX`], [Gia tốc / specific force theo trục X], [`g`],
-    [`accelY`], [Gia tốc / specific force theo trục Y], [`g`],
-    [`accelZ`], [Gia tốc / specific force theo trục Z], [`g`],
+    [`accelX`], [Gia tốc riêng theo trục X], [`g`],
+    [`accelY`], [Gia tốc riêng theo trục Y], [`g`],
+    [`accelZ`], [Gia tốc riêng theo trục Z], [`g`],
     [`gyroX`], [Vận tốc góc theo trục X], [`dps`],
     [`gyroY`], [Vận tốc góc theo trục Y], [`dps`],
     [`gyroZ`], [Vận tốc góc theo trục Z], [`dps`],
     [`temperature`], [Nhiệt độ cảm biến bên trong MPU6050], [`°C`],
   )
+  #align(center)[_Bảng 11.4.1. Các trường dữ liệu của `MPU_Data_t`_]
 ]
 
 #note[
-  Trường `temperature` phản ánh nhiệt độ cảm biến bên trong MPU6050. Giá trị này
-  không nên được sử dụng như phép đo trực tiếp nhiệt độ môi trường xung quanh
+  Trường `temperature` là nhiệt độ đo tại cảm biến bên trong MPU6050,
+  không phải phép đo trực tiếp nhiệt độ không khí xung quanh
   #cite-ref(refs, "tdk-mpu6050").
 ]
 
 
-== `MPU_Begin()`
+== MPU_Begin()
 
-`MPU_Begin()` khởi tạo MPU6050 bằng cấu hình mặc định của EduFramework. API tự
-khởi tạo tầng Wire, sử dụng địa chỉ `0x68`, đánh thức cảm biến và thiết lập dải
-đo gia tốc kế `±2 g` cùng dải đo con quay hồi chuyển `±250 dps`
-#cite-ref(refs, "eduframework-mpu6050").
+`MPU_Begin()` khởi tạo MPU6050 theo cấu hình mặc định của EduFramework.
+Theo giao diện được mô tả trong mã nguồn dự án, API khởi tạo tầng Wire, sử dụng
+địa chỉ `0x68`, đánh thức cảm biến và chọn dải đo `±2 g` cho gia tốc kế,
+`±250 dps` cho con quay hồi chuyển #cite-ref(refs, "eduframework-mpu6050").
 
 #api-detail(
   name: "MPU_Begin",
@@ -364,31 +374,33 @@ if (true == MPU_Begin())
 ```
 
 
-== `MPU_ReadData()`
+== MPU_ReadData()
 
-`MPU_ReadData()` thực hiện một lần đọc measurement frame của MPU6050 và cập nhật
-đồng thời các trường acceleration, con quay hồi chuyển và temperature trong
-`MPU_Data_t`. API chỉ trả dữ liệu khi Device đã được khởi tạo thành công
+`MPU_ReadData()` đọc một khung dữ liệu đo từ MPU6050 và cập nhật các
+trường gia tốc, vận tốc góc và nhiệt độ của `MPU_Data_t`. Hàm chỉ trả kết quả
+thành công khi cảm biến đã được khởi tạo và quá trình đọc không gặp lỗi
 #cite-ref(refs, "eduframework-mpu6050").
 
-#api-detail(
-  name: "MPU_ReadData",
-  syntax: [MPU_ReadData(data);],
-  description: [
-    Đọc một measurement frame và cập nhật cấu trúc dữ liệu được truyền vào.
-  ],
-  parameters: (
-    (
-      [data],
-      [MPU data structure],
-      [Nơi lưu dữ liệu acceleration, con quay hồi chuyển và temperature sau khi đọc.],
+#block(breakable: false)[
+  #api-detail(
+    name: "MPU_ReadData",
+    syntax: [MPU_ReadData(data);],
+    description: [
+      Đọc khung dữ liệu đo và cập nhật biến dữ liệu được truyền vào.
+    ],
+    parameters: (
+      (
+        [data],
+        [Địa chỉ vùng lưu dữ liệu],
+        [Địa chỉ của biến `MPU_Data_t` nhận kết quả đo, ví dụ `&data`.],
+      ),
     ),
-  ),
-  returns: [
-    `true` khi dữ liệu được đọc thành công; `false` khi Device chưa được khởi
-    tạo, tham số không hợp lệ hoặc giao tiếp I2C thất bại.
-  ],
-)
+    returns: [
+      `true` nếu đọc thành công; `false` nếu cảm biến chưa được khởi tạo,
+      tham số không hợp lệ hoặc giao tiếp I2C gặp lỗi.
+    ],
+  )
+]
 
 Ví dụ:
 
@@ -410,21 +422,21 @@ if (true == MPU_ReadData(&data))
 
 == Yêu cầu
 
-Xây dựng chương trình giám sát dữ liệu chuyển động từ MPU6050 và hiển thị kết
-quả trên Serial Monitor. Chương trình sử dụng `MPU_Begin()` để khởi tạo Device,
-sau đó gọi `MPU_ReadData()` sau mỗi khoảng `1000 ms` để lấy acceleration ba trục,
-con quay hồi chuyển ba trục và nhiệt độ cảm biến.
+Viết chương trình đọc gia tốc, vận tốc góc trên ba trục và nhiệt độ bên trong
+MPU6050, sau đó hiển thị kết quả lên Serial Monitor. Cảm biến được khởi tạo
+bằng `MPU_Begin()`; trong vòng lặp, chương trình gọi `MPU_ReadData()` và chờ
+`1000 ms` trước chu kỳ tiếp theo.
 
-Serial Monitor sử dụng baud rate `9600`. Khi quá trình khởi tạo thất bại, chương
-trình phải thông báo lỗi và không tiếp tục đọc cảm biến. Khi một lần đọc thất
-bại, chương trình in thông báo lỗi cho lần đọc đó và tiếp tục thử lại ở chu kỳ
-sau.
+Serial Monitor sử dụng tốc độ `9600 baud`. Nếu khởi tạo thất bại, chương trình
+in thông báo lỗi và không tiếp tục đọc. Nếu một lần đọc thất bại, chương trình
+báo lỗi rồi thử lại ở vòng lặp kế tiếp.
 
 
+// Giữ tiêu đề và câu dẫn cùng trang với khối mã nguồn không ngắt trang.
+#pagebreak()
 == Chương trình
 
-Trong `src/main.c`, triển khai chương trình đã được kiểm chứng trên phần cứng như
-sau:
+Trong `src/main.c`, sử dụng chương trình đã kiểm thử với phần cứng:
 
 #block(breakable: false)[
   #code-listing(
@@ -433,6 +445,7 @@ sau:
     ```c
       #include "Arduino.h"
       #include "MPU6050.h"
+
       int main(void)
       {
           MPU_Data_t data;
@@ -486,41 +499,40 @@ sau:
 
 == Giải thích chương trình
 
-`setup()` khởi tạo các thành phần nền tảng của EduFramework và
-`Serial1_begin(9600U)` chuẩn bị kênh Serial Monitor. Sau đó, `MPU_Begin()` thực
-hiện toàn bộ quá trình khởi tạo cần thiết cho cấu hình mặc định của MPU6050.
-Nếu API trả về `false`, chương trình dừng tại vòng lặp lỗi để tránh tiếp tục xử
-lý với một Device chưa sẵn sàng #cite-ref(refs, "eduframework-mpu6050").
+`setup()` khởi tạo các thành phần nền tảng của EduFramework;
+`Serial1_begin(9600U)` cấu hình cổng Serial Monitor ở `9600 baud`. Tiếp theo,
+`MPU_Begin()` khởi tạo MPU6050. Nếu hàm trả về `false`, chương trình thông báo
+lỗi và không tiếp tục đọc cảm biến #cite-ref(refs, "eduframework-mpu6050").
 
-Trong vòng lặp chính, `MPU_ReadData(&data)` đọc một measurement frame. Khi phép
-đọc thành công, toàn bộ dữ liệu đã được chuyển đổi và lưu trong `data`, vì vậy
-ứng dụng chỉ cần truy cập các trường `accelX`, `accelY`, `accelZ`, `gyroX`,
-`gyroY`, `gyroZ` và `temperature`. Kết quả được gửi tới Serial Monitor bằng các
-API Serial đã sử dụng ở các lab trước #cite-ref(refs, "eduframework-mpu6050").
+Mỗi vòng lặp gọi `MPU_ReadData(&data)` để nhận kết quả vào cấu trúc `data`.
+Khi hàm trả về `true`, chương trình in các thành phần `accelX`, `accelY`,
+`accelZ`, `gyroX`, `gyroY`, `gyroZ` và `temperature` qua các API Serial. Nếu
+đọc thất bại, chương trình in `MPU6050 read failed.` và thử lại ở vòng sau
+#cite-ref(refs, "eduframework-mpu6050").
 
 Luồng xử lý của ứng dụng có thể tóm tắt:
 
-`Chuyển động` → `MPU6050` → `I2C` → `MPU_ReadData()` → `MPU_Data_t` → `Serial1`
-→ `Serial Monitor`
+`Chuyển động` → `MPU6050` → `I2C` → `MPU_ReadData()` → `Serial1` →
+`Serial Monitor`
 
-`delay(1000U)` tạo khoảng cách một giây giữa hai lần cập nhật, giúp kết quả trên
-Serial Monitor dễ quan sát.
+`delay(1000U)` tạo khoảng nghỉ một giây sau mỗi lần xử lý; chu kỳ cập nhật
+thực tế còn bao gồm thời gian đọc cảm biến và xuất dữ liệu Serial.
 
 
 == Kiểm chứng
 
-Build và nạp chương trình xuống MaaZEDU Development Board, sau đó mở Serial
-Monitor với baud rate `9600`.
+Biên dịch và nạp chương trình xuống MaaZEDU, sau đó mở Serial Monitor với
+tốc độ `9600 baud`.
 
 Trước tiên, đặt module yên trên một bề mặt ổn định. Khi một trục cảm biến gần
-thẳng theo phương trọng lực, thành phần acceleration trên trục đó có độ lớn gần
-`1 g`, trong khi gyro trên ba trục nằm gần `0 dps`. Các giá trị thực tế có thể
-lệch nhẹ do hướng đặt module, offset và nhiễu cảm biến
+thẳng theo phương trọng lực, thành phần gia tốc trên trục đó có độ lớn gần
+`1 g`, trong khi vận tốc góc trên các trục gần `0 dps`. Các giá trị có thể chênh
+lệch do hướng đặt module, độ lệch điểm không và nhiễu cảm biến
 #cite-ref(refs, "berkeley-imu").
 
-Tiếp theo, nghiêng module để quan sát sự phân bố của acceleration giữa các trục,
-sau đó xoay module để quan sát sự thay đổi của con quay hồi chuyển. Không yêu cầu các giá
-trị phải trùng với một bộ số cố định; mục tiêu là kiểm chứng dữ liệu phản ứng
+Tiếp theo, nghiêng module để quan sát gia tốc trên từng trục, rồi xoay
+module để quan sát sự thay đổi của vận tốc góc. Không yêu cầu các giá trị trùng
+với một bộ số cố định; mục tiêu là kiểm chứng dữ liệu phản ứng
 hợp lý theo chuyển động thực tế.
 
 Dữ liệu đã quan sát trong quá trình kiểm thử phần cứng có dạng:
@@ -537,10 +549,10 @@ Temperature: 46.412 C
 
 #block(breakable: false)[
   #expected-result[
-    Serial Monitor hiển thị liên tục acceleration và con quay hồi chuyển theo ba trục cùng
-    nhiệt độ cảm biến. Khi module được nghiêng hoặc xoay, các giá trị tương ứng
-    thay đổi theo chuyển động; khi module đứng yên, gyro nằm gần `0 dps` và
-    acceleration phản ánh thành phần của trọng lực theo hướng đặt cảm biến.
+    Serial Monitor hiển thị gia tốc, vận tốc góc theo ba trục và nhiệt độ bên
+    trong MPU6050. Khi nghiêng hoặc xoay module, các giá trị đo thay đổi theo
+    chuyển động; khi module đứng yên, vận tốc góc thường gần `0 dps` và gia
+    tốc kế thể hiện ảnh hưởng của trọng lực theo hướng đặt cảm biến.
   ]
 ]
 
@@ -551,16 +563,16 @@ Temperature: 46.412 C
 
 = Mở rộng
 
-Bài thực hành chính sử dụng Beginner API để giữ cấu hình và luồng chương trình
-đơn giản. MPU6050 Device còn cung cấp các API đọc chọn lọc, hiệu chuẩn và một
-Advanced API theo context để ứng dụng có thể chủ động lựa chọn địa chỉ I2C, dải
-đo và số mẫu hiệu chuẩn khi cần #cite-ref(refs, "eduframework-mpu6050").
+Bài thực hành chính sử dụng API cơ bản (Beginner API) với cấu hình mặc
+định. Phần này giới thiệu các API đọc chọn lọc, hiệu chuẩn và API nâng cao
+(Advanced API) để lựa chọn địa chỉ I2C, dải đo và số mẫu hiệu chuẩn
+#cite-ref(refs, "eduframework-mpu6050").
 
 
 == Đọc chọn lọc và kiểm tra trạng thái
 
-Ngoài `MPU_ReadData()`, Beginner API cung cấp các hàm đọc riêng từng nhóm dữ
-liệu:
+Ngoài `MPU_ReadData()`, API cơ bản cung cấp những hàm đọc riêng từng nhóm
+dữ liệu và hàm kiểm tra trạng thái khởi tạo:
 
 #block(
   width: 100%,
@@ -580,19 +592,20 @@ liệu:
         #align(center + horizon)[*Chức năng*]
       ],
     ),
-    [`MPU_IsInitialized()`], [Kiểm tra trạng thái khởi tạo của default Device.],
-    [`MPU_ReadAcceleration()`], [Đọc acceleration theo ba trục X, Y, Z.],
-    [`MPU_Readcon quay hồi chuyển()`], [Đọc con quay hồi chuyển theo ba trục X, Y, Z.],
+    [`MPU_IsInitialized()`], [Kiểm tra trạng thái khởi tạo của thiết bị mặc định.],
+    [`MPU_ReadAcceleration()`], [Đọc gia tốc theo ba trục X, Y, Z.],
+    [`MPU_ReadGyroscope()`], [Đọc con quay hồi chuyển theo ba trục X, Y, Z.],
     [`MPU_ReadTemperature()`], [Đọc nhiệt độ cảm biến bên trong MPU6050.],
   )
+  #align(center)[_Bảng 11.6.1. Các API đọc chọn lọc và kiểm tra trạng thái_]
 ]
 
-Mỗi API đọc chọn lọc thực hiện một lần đọc mới từ cảm biến trước khi trả kết
-quả. Vì vậy, khi ứng dụng cần đồng thời acceleration, con quay hồi chuyển và temperature,
-`MPU_ReadData()` phù hợp hơn vì các giá trị được lấy từ cùng một measurement
-frame và chỉ cần một chu kỳ đọc Device #cite-ref(refs, "eduframework-mpu6050").
+Các hàm `MPU_ReadAcceleration()`, `MPU_ReadGyroscope()` và
+`MPU_ReadTemperature()` đọc riêng dữ liệu tương ứng từ cảm biến. Nếu cần cả
+ba nhóm dữ liệu, `MPU_ReadData()` phù hợp hơn vì cập nhật chúng trong một lần
+gọi API #cite-ref(refs, "eduframework-mpu6050").
 
-Ví dụ khi chỉ cần acceleration:
+Ví dụ khi chỉ cần gia tốc:
 ```c
 float x = 0.0F;
 float y = 0.0F;
@@ -600,43 +613,42 @@ float z = 0.0F;
 
 if (true == MPU_ReadAcceleration(&x, &y, &z))
 {
-    /* Use acceleration data. */
+    /* Xu ly du lieu gia toc. */
 }
 ```
-== Hiệu chuẩn với `MPU_Calibrate()`
 
-`MPU_Calibrate()` thực hiện hiệu chuẩn default MPU6050 bằng cách lấy nhiều mẫu
-khi cảm biến đứng yên và tính các offset cho gia tốc kế và con quay hồi chuyển. Trong
-implementation hiện tại, Beginner API sử dụng `500` mẫu. Thuật toán giả định
-module được giữ ổn định với trục `+Z` gần `+1 g` trong quá trình hiệu chuẩn
-#cite-ref(refs, "eduframework-mpu6050").
+== Hiệu chuẩn với MPU_Calibrate()
+
+`MPU_Calibrate()` hiệu chuẩn thiết bị mặc định bằng cách thu thập các mẫu
+đo khi cảm biến đứng yên, sau đó xác định độ lệch điểm không cho gia tốc kế
+và con quay hồi chuyển. Theo triển khai được mô tả trong nguồn EduFramework,
+API cơ bản sử dụng `500` mẫu và giả định cảm biến nằm ổn định với trục `+Z`
+chịu thành phần gia tốc khoảng `+1 g` #cite-ref(refs, "eduframework-mpu6050").
 
 #api-detail(
   name: "MPU_Calibrate",
   syntax: [MPU_Calibrate();],
   description: [
-    Hiệu chuẩn default MPU6050 và cập nhật các offset được áp dụng cho các lần
-    đọc tiếp theo.
+    Hiệu chuẩn MPU6050 mặc định và cập nhật độ lệch dùng cho các lần đọc sau.
   ],
   parameters: (),
   returns: [
-    `true` khi toàn bộ quá trình hiệu chuẩn hoàn tất thành công; `false` khi
-    Device chưa được khởi tạo hoặc có lỗi trong quá trình lấy mẫu.
+    `true` nếu hiệu chuẩn hoàn thành; `false` nếu cảm biến chưa được khởi tạo
+    hoặc gặp lỗi trong quá trình thu thập mẫu.
   ],
 )
 
 #note[
-  Giữ module đứng yên và gần nằm ngang trong suốt quá trình hiệu chuẩn. Di
-  chuyển cảm biến trong khi lấy mẫu sẽ làm các offset thu được không đại diện
-  cho trạng thái tĩnh mong muốn.
+  Giữ module đứng yên trong suốt quá trình hiệu chuẩn và đặt theo hướng
+  yêu cầu của thuật toán. Di chuyển cảm biến khi lấy mẫu sẽ làm kết quả
+  hiệu chuẩn không phản ánh đúng trạng thái tĩnh.
 ]
 
-== Địa chỉ I2C và chân `AD0`
+== Địa chỉ I2C và chân AD0
 
-Cấu hình mặc định của bài lab nối `AD0` xuống `GND`, tương ứng với địa chỉ
-`0x68`. MPU6050 cũng cho phép đưa `AD0` lên mức logic cao để sử dụng địa chỉ
-`0x69`. Cơ chế này cho phép hai MPU6050 cùng tồn tại trên một bus I2C nếu một
-Device sử dụng địa chỉ `0x68` và Device còn lại sử dụng `0x69`
+Khi `AD0` ở mức thấp, MPU6050 có địa chỉ I2C 7 bit là `0x68`; khi chân
+này ở mức cao, địa chỉ chuyển thành `0x69`. Vì vậy, có thể phân biệt hai
+MPU6050 trên cùng một bus I2C nếu mỗi thiết bị dùng một mức `AD0` khác nhau
 #cite-ref(refs, "tdk-mpu6050").
 
 EduFramework định nghĩa hai hằng địa chỉ:
@@ -646,9 +658,9 @@ MPU6050_ADDRESS_DEFAULT   /* 0x68 */
 MPU6050_ADDRESS_ALT       /* 0x69 */
 ```
 
-Beginner API luôn sử dụng địa chỉ mặc định. Khi cần lựa chọn địa chỉ, ứng dụng
-sử dụng Advanced API và một context `MPU6050_t` riêng. Trong Advanced API, tầng
-Wire phải được khởi tạo trước khi gọi `MPU6050_begin()`
+API cơ bản sử dụng địa chỉ mặc định `0x68`. Để chọn địa chỉ khác, ứng
+dụng sử dụng API nâng cao với một biến ngữ cảnh `MPU6050_t`; tầng Wire phải
+được khởi tạo trước khi gọi `MPU6050_begin()`
 #cite-ref(refs, "eduframework-mpu6050").
 
 Ví dụ nguyên tắc:
@@ -671,9 +683,9 @@ Ví dụ nguyên tắc:
 
 == Tùy chỉnh dải đo
 
-Product Specification của MPU6050 hỗ trợ bốn dải full-scale cho gia tốc kế
-và bốn dải full-scale cho con quay hồi chuyển. EduFramework expose các lựa chọn này thông
-qua Advanced API #cite-ref(refs, "tdk-mpu6050")
+Tài liệu kỹ thuật MPU6050 quy định bốn dải đo toàn thang (full-scale range)
+cho gia tốc kế và bốn dải cho con quay hồi chuyển. EduFramework cho phép
+thiết lập các dải này bằng API nâng cao #cite-ref(refs, "tdk-mpu6050")
 #cite-ref(refs, "eduframework-mpu6050").
 
 #block(
@@ -684,14 +696,14 @@ qua Advanced API #cite-ref(refs, "tdk-mpu6050")
     columns: (1.35fr, 1.35fr),
     align: (center + horizon, center + horizon),
     stroke: 0.4pt + table-line,
-    inset: 7pt,
+    inset: 5pt,
     table.header(
       repeat: true,
       table.cell(fill: table-header-gray)[
-        #align(center + horizon)[*gia tốc kế*]
+        #align(center + horizon)[*Gia tốc kế*]
       ],
       table.cell(fill: table-header-gray)[
-        #align(center + horizon)[*con quay hồi chuyển*]
+        #align(center + horizon)[*Con quay hồi chuyển*]
       ],
     ),
     [`MPU6050_RANGE_2_G`], [`MPU6050_RANGE_250_DEG`],
@@ -699,91 +711,103 @@ qua Advanced API #cite-ref(refs, "tdk-mpu6050")
     [`MPU6050_RANGE_8_G`], [`MPU6050_RANGE_1000_DEG`],
     [`MPU6050_RANGE_16_G`], [`MPU6050_RANGE_2000_DEG`],
   )
+  #align(center)[_Bảng 11.6.2. Các lựa chọn dải đo của MPU6050_]
 ]
 
 Hai API cấu hình tương ứng:
 
 ```c
-MPU6050_setgia tốc kếRange(&mpu, MPU6050_RANGE_4_G);
+MPU6050_setAccelerometerRange(&mpu, MPU6050_RANGE_4_G);
 MPU6050_setGyroRange(&mpu, MPU6050_RANGE_500_DEG);
 ```
 
-Dải đo lớn hơn cho phép cảm biến biểu diễn chuyển động có biên độ lớn hơn, trong
-khi độ nhạy theo số đếm trên mỗi đơn vị đo thay đổi theo dải đã chọn. Việc lựa
-chọn dải đo nên dựa trên biên độ chuyển động của ứng dụng thay vì luôn sử dụng
-dải lớn nhất #cite-ref(refs, "tdk-mpu6050").
+Dải đo toàn thang lớn hơn cho phép đo chuyển động có biên độ lớn hơn,
+nhưng hệ số nhạy (số đếm trên mỗi đơn vị đo) cũng thay đổi. Vì thế cần chọn
+dải đo theo mức gia tốc hoặc vận tốc góc dự kiến thay vì mặc định chọn dải
+lớn nhất #cite-ref(refs, "tdk-mpu6050").
 
 
-== Advanced API theo context
+// Bảng API được nén khoảng đệm, để phân trang tự nhiên thay vì ép sang trang mới.
+== API nâng cao theo ngữ cảnh
 
-Advanced API lưu địa chỉ, dải đo, dữ liệu đo và các offset hiệu chuẩn trong
-`MPU6050_t`. Mô hình này cho phép application kiểm soát cấu hình Device thay vì
-phụ thuộc vào context mặc định của Beginner API #cite-ref(refs, "eduframework-mpu6050").
+API nâng cao sử dụng biến ngữ cảnh `MPU6050_t` để quản lý địa chỉ I2C, dải đo,
+dữ liệu cảm biến và độ lệch hiệu chuẩn thay cho cấu hình mặc định
+#cite-ref(refs, "eduframework-mpu6050").
 
-Các API chính gồm:
+Các API khởi tạo, cấu hình và thu thập dữ liệu được tổng hợp dưới đây:
 
-#block(
-  width: 100%,
-  breakable: false,
-)[
+#block(width: 100%, breakable: false)[
   #table(
     columns: (1.8fr, 2.2fr),
     align: (left + horizon, left + horizon),
     stroke: 0.4pt + table-line,
-    inset: 7pt,
+    inset: 4pt,
     table.header(
       repeat: true,
-      table.cell(fill: table-header-gray)[
-        #align(center + horizon)[*Advanced API*]
-      ],
-      table.cell(fill: table-header-gray)[
-        #align(center + horizon)[*Vai trò*]
-      ],
+      table.cell(fill: table-header-gray)[#align(center + horizon)[*Advanced API*]],
+      table.cell(fill: table-header-gray)[#align(center + horizon)[*Vai trò*]],
     ),
-    [`MPU6050_begin()`], [Khởi tạo một context với địa chỉ I2C được lựa chọn.],
-    [`MPU6050_setgia tốc kếRange()`], [Thay đổi dải đo gia tốc kế.],
+    [`MPU6050_begin()`], [Khởi tạo ngữ cảnh với địa chỉ I2C đã chọn.],
+    [`MPU6050_setAccelerometerRange()`], [Thay đổi dải đo gia tốc kế.],
     [`MPU6050_setGyroRange()`], [Thay đổi dải đo con quay hồi chuyển.],
-    [`MPU6050_read()`], [Đọc measurement frame vào context.],
-    [`MPU6050_calibrate()`], [Hiệu chuẩn với số mẫu do application lựa chọn.],
+    [`MPU6050_read()`], [Đọc một khung dữ liệu đo vào ngữ cảnh.],
+    [`MPU6050_calibrate()`], [Hiệu chuẩn với số mẫu do ứng dụng lựa chọn.],
+  )
+  #align(center)[_Bảng 11.6.3. API khởi tạo, cấu hình và đọc dữ liệu_]
+]
+
+Các hàm truy xuất dữ liệu đã lưu trong ngữ cảnh gồm:
+
+#block(width: 100%, breakable: false)[
+  #table(
+    columns: (1.8fr, 2.2fr),
+    align: (left + horizon, left + horizon),
+    stroke: 0.4pt + table-line,
+    inset: 4pt,
+    table.header(
+      repeat: true,
+      table.cell(fill: table-header-gray)[#align(center + horizon)[*Advanced API*]],
+      table.cell(fill: table-header-gray)[#align(center + horizon)[*Vai trò*]],
+    ),
     [
       `MPU6050_getAccelerationX()`, `MPU6050_getAccelerationY()`,
       `MPU6050_getAccelerationZ()`
     ],
-    [Đọc acceleration từng trục đã lưu trong context.],
+    [Lấy giá trị gia tốc từng trục đã lưu trong ngữ cảnh.],
 
     [
       `MPU6050_getGyroX()`, `MPU6050_getGyroY()`, `MPU6050_getGyroZ()`
     ],
-    [Đọc con quay hồi chuyển từng trục đã lưu trong context.],
+    [Lấy giá trị vận tốc góc từng trục đã lưu trong ngữ cảnh.],
 
-    [`MPU6050_getTemperature()`], [Đọc nhiệt độ đã lưu trong context.],
+    [`MPU6050_getTemperature()`], [Lấy nhiệt độ đã lưu trong ngữ cảnh.],
   )
+  #align(center)[_Bảng 11.6.4. API truy xuất dữ liệu từ ngữ cảnh_]
 ]
 
-Beginner API phù hợp khi chỉ cần một MPU6050 với cấu hình tiêu chuẩn. Advanced
-API phù hợp khi application cần địa chỉ khác, dải đo khác, số mẫu hiệu chuẩn tùy
-chọn hoặc cần tự quản lý context Device.
+API cơ bản phù hợp với một cảm biến ở cấu hình mặc định. API nâng cao hỗ trợ
+địa chỉ I2C, dải đo, số mẫu hiệu chuẩn tùy chọn và các ngữ cảnh thiết bị riêng.
 
 
 == Bài tập mở rộng
 
-Cấu hình MPU6050 ở địa chỉ `0x69` bằng cách đặt `AD0` ở mức logic cao và sử dụng
-Advanced API để:
+Đặt `AD0` ở mức logic cao để dùng địa chỉ `0x69`, sau đó sử dụng API
+nâng cao để:
 
-- khởi tạo một `MPU6050_t` riêng;
-- lựa chọn gia tốc kế range `±4 g`;
-- lựa chọn con quay hồi chuyển range `±500 dps`;
-- thực hiện hiệu chuẩn với số mẫu do chương trình lựa chọn;
-- đọc dữ liệu và hiển thị acceleration cùng con quay hồi chuyển trên Serial Monitor.
+- Khởi tạo một `MPU6050_t` riêng;
+- Chọn dải đo gia tốc kế `±4 g`;
+- Chọn dải đo vận tốc góc `±500 dps`;
+- Thực hiện hiệu chuẩn với số mẫu do chương trình lựa chọn;
+- Đọc dữ liệu và hiển thị gia tốc cùng con quay hồi chuyển trên Serial Monitor.
 
-Không sử dụng `MPU_Begin()` trong bài tập này. Mục tiêu là thực hành trực tiếp
-với `MPU6050_begin()`, các API cấu hình range và `MPU6050_calibrate()`.
+Không gọi `MPU_Begin()` trong bài tập này. Sử dụng `MPU6050_begin()`,
+các hàm cấu hình dải đo và `MPU6050_calibrate()` theo API nâng cao.
 
 #block(breakable: false)[
   #expected-result[
-    MPU6050 được khởi tạo thành công tại địa chỉ `0x69`, dữ liệu tiếp tục được
-    đọc và hiển thị sau khi thay đổi dải đo, và các giá trị gyro ở trạng thái
-    đứng yên được cải thiện sau quá trình hiệu chuẩn phù hợp.
+    Cảm biến khởi tạo được tại địa chỉ `0x69` và trả dữ liệu sau khi thiết
+    lập dải đo. Khi hiệu chuẩn đúng điều kiện tĩnh, độ lệch điểm không của
+    các giá trị vận tốc góc có thể được giảm bớt.
   ]
 ]
 
@@ -792,6 +816,9 @@ với `MPU6050_begin()`, các API cấu hình range và `MPU6050_calibrate()`.
 // 7. TÀI LIỆU THAM KHẢO
 // ============================================================================
 
-= Tài liệu tham khảo
+// Giữ toàn bộ danh mục tham khảo cùng một trang, tránh mục [6] bị lẻ.
+#block(breakable: false)[
+  = Tài liệu tham khảo
 
-#references(refs)
+  #references(refs)
+]

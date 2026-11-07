@@ -7,6 +7,7 @@
 // English version
 // ============================================================================
 
+
 // ============================================================================
 // 0. REFERENCES
 // ============================================================================
@@ -36,7 +37,7 @@
     document: [PS-MPU-6000A-00],
     revision: [3.4],
     year: [2013],
-    url: "https://invensense.tdk.com/wp-content/uploads/2015/02/MPU-6000-Datasheet.pdf",
+    url: "https://product.tdk.com/system/files/dam/doc/product/sensor/mortion-inertial/imu/data_sheet/mpu-6000-datasheet1.pdf",
   ),
   (
     key: "nxp-s32k-datasheet",
@@ -46,13 +47,13 @@
     document: [S32K1XX],
     revision: [15],
     year: [2026],
-    url: "https://www\.nxp.com/docs/en/data-sheet/S32K1xx.pdf",
+    url: "https://www.nxp.com/docs/en/data-sheet/S32K1xx.pdf",
   ),
   (
     key: "maazedu-guide",
     type: "manual",
-    author: [MaaZEDU],
-    title: [MaaZEDU Development Board Guide],
+    author: [FPT Software],
+    title: [MaaZ Edu Development Board - User Manual],
     revision: [1.0],
     year: [2025],
   ),
@@ -66,6 +67,7 @@
   ),
 )
 
+
 // ============================================================================
 // DOCUMENT WRAPPER
 // ============================================================================
@@ -74,8 +76,9 @@
   number: 11,
   language: "en",
   title: [Motion Data Monitoring with MPU6050],
-  subtitle: [Reading Acceleration and Angular Velocity Using the MPU6050 Device API with EduFramework],
+  subtitle: [Measuring Acceleration and Angular Velocity with MPU6050 via EduFramework],
 )
+
 
 // ============================================================================
 // 1. INTRODUCTION
@@ -85,45 +88,46 @@
 
 == Lab Overview
 
-The MPU6050 is a motion sensor that integrates a three-axis accelerometer and a three-axis
-gyroscope. These two sensing elements provide measurements along three mutually
-perpendicular axes, allowing an embedded system to observe changes in motion and the
-rotational rate of the object to which the sensor is attached
-#cite-ref(refs, "berkeley-imu").
+The MPU6050 is a six-axis motion sensor integrating a three-axis accelerometer
+and a three-axis gyroscope. It measures specific force and angular velocity
+along the X, Y, and Z axes, providing information about the motion of the
+object to which the sensor is attached #cite-ref(refs, "tdk-mpu6050").
 
-This lab focuses on using the MPU6050 through the EduFramework Device API rather than
-accessing the sensor registers directly. The program initializes the module using the
-default configuration, simultaneously reads acceleration, angular velocity, and sensor
-temperature data, and then displays the results on the Serial Monitor. The Extension
-section introduces selective-read APIs, calibration, and the advanced interface that
-allows the I2C address as well as the accelerometer and gyroscope measurement ranges to
-be changed #cite-ref(refs, "eduframework-mpu6050").
+This lab uses the EduFramework Device API instead of directly accessing the
+MPU6050 registers. The program initializes the sensor, reads acceleration,
+angular velocity, and internal sensor temperature, and displays the measurements
+on the Serial Monitor. The Extension section introduces selective reading,
+calibration, I2C address selection, and measurement-range configuration
+#cite-ref(refs, "eduframework-mpu6050").
+
 
 == Objectives
 
 #objectives(
   items: (
     [
-      Describe the roles of the accelerometer and gyroscope in a six-axis motion sensor.
+      Describe the roles of the accelerometer and gyroscope in a six-axis
+      motion sensor.
     ],
     [
-      Explain the basic components of I2C communication, including `SDA`, `SCL`, and
-      device addressing.
+      Explain the basic elements of I2C communication, including `SDA`, `SCL`,
+      and device addressing.
     ],
     [
-      Use the `MPU_Data_t` structure to access acceleration, angular velocity, and sensor
-      temperature data provided by EduFramework.
+      Use the `MPU_Data_t` structure to access acceleration, angular velocity,
+      and sensor-temperature data provided by EduFramework.
     ],
     [
-      Use `MPU_Begin()` and `MPU_ReadData()` to build an MPU6050 data-monitoring
-      application on the Serial Monitor.
+      Use `MPU_Begin()` and `MPU_ReadData()` to develop an MPU6050 motion-data
+      monitoring application on the Serial Monitor.
     ],
     [
-      Recognize the advanced configuration capabilities of the MPU6050 Device API,
-      including calibration, I2C address selection, and measurement-range configuration.
+      Identify the advanced configuration capabilities of the MPU6050 Device API,
+      including calibration, I2C address selection, and measurement-range selection.
     ],
   ),
 )
+
 
 // ============================================================================
 // 2. BACKGROUND
@@ -133,38 +137,43 @@ be changed #cite-ref(refs, "eduframework-mpu6050").
 
 == Accelerometer and Gyroscope
 
-A typical IMU uses three accelerometers and three rate gyroscopes arranged along three
-mutually perpendicular axes. The gyroscope provides the components of the object's
-angular velocity along the sensor axes, while the accelerometer provides measurements
-of specific force along the corresponding axes #cite-ref(refs, "berkeley-imu").
+The MPU6050 is an inertial measurement unit (IMU) containing a three-axis
+accelerometer and a three-axis gyroscope. The accelerometer measures *specific
+force*, whereas the gyroscope measures angular velocity about each axis.
+These measurements provide complementary information for observing sensor motion
+#cite-ref(refs, "berkeley-imu") #cite-ref(refs, "tdk-mpu6050").
 
-In EduFramework, the MPU6050 accelerometer values are converted to units of `g`, while
-the gyroscope data are converted to `dps` (degrees per second). When the module is
-stationary, the accelerometer data still reflect the effect of gravity, so one axis may
-have a magnitude close to `1 g` depending on the sensor orientation. Gyroscope data
-while stationary are typically close to `0 dps`, but offset and noise are still present
+In EduFramework, acceleration is expressed in `g` (standard gravitational
+acceleration), while angular velocity is expressed in `dps` (degrees per second).
+When the sensor is stationary, the accelerometer still responds to gravity: an
+axis nearly aligned with the vertical direction may have a magnitude of
+approximately `1 g`. In contrast, angular-velocity readings are generally close
+to `0 dps`, although zero-rate offset and noise may remain
 #cite-ref(refs, "berkeley-imu") #cite-ref(refs, "eduframework-mpu6050").
 
 #note[
-  A gyroscope provides angular velocity, not the rotation angle directly. Deriving
-  orientation, pitch, roll, or yaw from IMU data requires additional processing and is
-  outside the scope of this lab.
+  A gyroscope measures angular velocity rather than rotation angle directly.
+  Estimating orientation angles such as roll, pitch, or yaw requires additional
+  data processing and is beyond the scope of this lab.
 ]
+
 
 == I2C Communication
 
-I2C is a synchronous two-wire serial bus. `SCL` carries the clock signal, while `SDA`
-is used to transfer data. Multiple devices can share the same bus and are distinguished
-by the address assigned to each peripheral #cite-ref(refs, "cornell-i2c").
+I2C is a synchronous serial communication bus with two signal lines: `SCL`
+(Serial Clock) carries the clock signal, and `SDA` (Serial Data) carries data.
+Multiple devices can share these lines, with the controller distinguishing
+individual devices by their I2C addresses #cite-ref(refs, "cornell-i2c").
 
-The MPU6050 uses I2C as the host interface in this lab configuration. The least
-significant address bit is determined by the `AD0` pin: when `AD0` is low, the slave
-address is `0x68`; when `AD0` is high, the address becomes `0x69`
+In this lab, the S32K144 communicates with the MPU6050 over I2C. The `AD0` pin
+determines the least significant bit of the 7-bit I2C address: a logic-low level
+selects `0x68`, whereas a logic-high level selects `0x69`
 #cite-ref(refs, "tdk-mpu6050").
 
-The data flow in this lab can be represented as:
+The application data flow is:
 
 `MPU6050` → `I2C` → `Wire / LPI2C` → `MPU6050 Device API` → `Application`
+
 
 // ============================================================================
 // 3. HARDWARE SETUP
@@ -174,15 +183,14 @@ The data flow in this lab can be represented as:
 
 == Required Hardware
 
-The lab uses the MaaZEDU Development Board and an MPU6050 module. MaaZEDU is a
-development board based on the S32K144 microcontroller
-#cite-ref(refs, "maazedu-guide").
-
-The module is powered from `3.3V`, shares `GND` with the board, and exchanges data
-through the I2C interface #cite-ref(refs, "tdk-mpu6050").
+The lab uses the MaaZEDU Development Board and an MPU6050 module. MaaZEDU is
+a development board based on the NXP S32K144 microcontroller
+#cite-ref(refs, "maazedu-guide") #cite-ref(refs, "nxp-s32k-datasheet").
+The sensor module is supplied with `3.3V`, shares `GND` with the board, and
+exchanges data through the I2C interface #cite-ref(refs, "tdk-mpu6050").
 
 #hardware-table(
-  caption: [Hardware used in the lab exercise],
+  caption: [Hardware required for the lab exercise],
   rows: (
     (
       [MaaZEDU Development Board],
@@ -197,20 +205,21 @@ through the I2C interface #cite-ref(refs, "tdk-mpu6050").
       [Connect power and I2C signals between the MPU6050 and MaaZEDU.],
     ),
     (
-      [USB Cable],
+      [USB cable],
       [
-        Connect the board to the computer for power, program upload, and Serial Monitor
-        access.
+        Connect the board to the computer for power, program upload, and
+        Serial Monitor access.
       ],
     ),
   ),
 )
 
+
 == I2C Signal Mapping
 
-In the current EduFramework configuration, the I2C0 interface uses the `I2C0_SCL` and
-`I2C0_SDA` signals. These signals are used by the Wire API and by the MPU6050 Device API
-in this lab exercise #cite-ref(refs, "eduframework-mpu6050").
+In the EduFramework configuration used for this lab, the I2C0 bus is mapped to
+`I2C0_SCL` (`PTA3`) and `I2C0_SDA` (`PTA2`). The Wire interface and MPU6050
+driver use these pins to exchange data #cite-ref(refs, "eduframework-mpu6050").
 
 #pin-table(
   caption: [MPU6050 signal mapping used in the lab exercise],
@@ -219,37 +228,43 @@ in this lab exercise #cite-ref(refs, "eduframework-mpu6050").
       [MPU6050 `SCL`],
       "I2C0_SCL",
       "PTA3",
-      [I2C Clock],
+      [I2C clock],
     ),
     (
       [MPU6050 `SDA`],
       "I2C0_SDA",
       "PTA2",
-      [I2C Data],
+      [I2C data],
     ),
   ),
 )
 
+
 == Connecting the MPU6050
 
-In the default lab configuration, `VCC` is connected to `3.3V`, `GND` to `GND`, `SCL`
-to `I2C0_SCL`, and `SDA` to `I2C0_SDA`. The `AD0` pin is held low by connecting it to
-`GND`, so the Device uses the default address `0x68`
-#cite-ref(refs, "tdk-mpu6050") #cite-ref(refs, "eduframework-mpu6050").
+Connect the module's `VCC` pin to `3.3V`, `GND` to `GND`, `SCL` to
+`I2C0_SCL`, and `SDA` to `I2C0_SDA`. To use the default I2C address `0x68`,
+the `AD0` pin must be at a logic-low level. If the module does not include a
+pull-down circuit, connect `AD0` to `GND`; verify the pinout of the actual
+module before applying power #cite-ref(refs, "tdk-mpu6050")
+#cite-ref(refs, "eduframework-mpu6050").
 
 #figure-block(
-  caption: [MPU6050 connection diagram with MaaZEDU Development Board],
+  caption: [Four power and I2C connections between the MPU6050 and MaaZEDU],
 )[
   #image(
     "../assets/circuits/mpu6050_circuit.png",
-    width: 88%,
+    width: 82%,
   )
 ]
 
 #note[
-  The `INT` pin is not used in this lab exercise. Data are read actively through
-  `MPU_ReadData()` according to the program cycle.
+  The diagram shows the four main connections and does not depict the `AD0`
+  pin. Before running the program, ensure that `AD0` is low to select address
+  `0x68`. The `INT` pin is not used because the program polls measurements
+  periodically using `MPU_ReadData()`.
 ]
+
 
 // ============================================================================
 // 4. EDUFRAMEWORK API
@@ -257,16 +272,18 @@ to `I2C0_SCL`, and `SDA` to `I2C0_SDA`. The `AD0` pin is held low by connecting 
 
 = EduFramework API
 
-The EduFramework MPU6050 Device provides a group of simple APIs for basic applications
-and a group of advanced APIs for cases that require detailed configuration. The main lab
-exercise uses `MPU_Data_t`, `MPU_Begin()`, and `MPU_ReadData()`; the advanced
-configuration APIs are introduced in the Extension section
+EduFramework provides a Beginner API for operating the MPU6050 with its default
+configuration and an Advanced API for managing configuration through a device
+context. The main exercise uses only `MPU_Data_t`, `MPU_Begin()`, and
+`MPU_ReadData()`. Additional APIs are introduced in the Extension section
 #cite-ref(refs, "eduframework-mpu6050").
 
-== `MPU_Data_t` Structure
 
-`MPU_Data_t` groups the values from one sensor read into a single structure. The
-application can access each field directly after `MPU_ReadData()` completes successfully
+== MPU_Data_t Structure
+
+`MPU_Data_t` is a structure that stores measurements along the three axes and
+the internal sensor temperature. When `MPU_ReadData()` returns `true`, the
+application accesses individual structure members using the dot (`.`) operator
 #cite-ref(refs, "eduframework-mpu6050").
 
 #block(breakable: false)[
@@ -309,27 +326,30 @@ application can access each field directly after `MPU_ReadData()` completes succ
         #align(center + horizon)[*Unit*]
       ],
     ),
-    [`accelX`], [Acceleration / specific force along the X-axis], [`g`],
-    [`accelY`], [Acceleration / specific force along the Y-axis], [`g`],
-    [`accelZ`], [Acceleration / specific force along the Z-axis], [`g`],
-    [`gyroX`], [Angular velocity along the X-axis], [`dps`],
-    [`gyroY`], [Angular velocity along the Y-axis], [`dps`],
-    [`gyroZ`], [Angular velocity along the Z-axis], [`dps`],
+    [`accelX`], [Specific force along the X-axis], [`g`],
+    [`accelY`], [Specific force along the Y-axis], [`g`],
+    [`accelZ`], [Specific force along the Z-axis], [`g`],
+    [`gyroX`], [Angular velocity about the X-axis], [`dps`],
+    [`gyroY`], [Angular velocity about the Y-axis], [`dps`],
+    [`gyroZ`], [Angular velocity about the Z-axis], [`dps`],
     [`temperature`], [Internal MPU6050 sensor temperature], [`°C`],
   )
+  #align(center)[_Table 11.4.1. Fields of the `MPU_Data_t` structure_]
 ]
 
 #note[
-  The `temperature` field reflects the internal temperature of the MPU6050 sensor. This
-  value should not be used as a direct measurement of the surrounding ambient
-  temperature #cite-ref(refs, "tdk-mpu6050").
+  The `temperature` field reports the temperature measured inside the MPU6050,
+  not a direct measurement of the surrounding air temperature
+  #cite-ref(refs, "tdk-mpu6050").
 ]
 
-== `MPU_Begin()`
 
-`MPU_Begin()` initializes the MPU6050 using the default EduFramework configuration. The
-API initializes the Wire layer, uses address `0x68`, wakes the sensor, and configures the
-accelerometer range to `±2 g` and the gyroscope range to `±250 dps`
+== MPU_Begin()
+
+`MPU_Begin()` initializes the MPU6050 using the default EduFramework
+configuration. According to the project source code, the API initializes the
+Wire layer, uses address `0x68`, wakes the sensor, and selects an accelerometer
+range of `±2 g` and a gyroscope range of `±250 dps`
 #cite-ref(refs, "eduframework-mpu6050").
 
 #api-detail(
@@ -340,8 +360,8 @@ accelerometer range to `±2 g` and the gyroscope range to `±250 dps`
   ],
   parameters: (),
   returns: [
-    `true` when initialization and communication verification succeed; `false` when the
-    sensor cannot be communicated with or configured.
+    `true` if initialization and communication verification succeed; `false`
+    if the sensor cannot be reached or configured.
   ],
 )
 
@@ -354,31 +374,34 @@ if (true == MPU_Begin())
 }
 ```
 
-== `MPU_ReadData()`
 
-`MPU_ReadData()` performs one MPU6050 measurement-frame read and simultaneously updates
-the acceleration, gyroscope, and temperature fields in `MPU_Data_t`. The API returns
-data only when the Device has been initialized successfully
-#cite-ref(refs, "eduframework-mpu6050").
+== MPU_ReadData()
 
-#api-detail(
-  name: "MPU_ReadData",
-  syntax: [MPU_ReadData(data);],
-  description: [
-    Read one measurement frame and update the supplied data structure.
-  ],
-  parameters: (
-    (
-      [data],
-      [MPU data structure],
-      [Storage for acceleration, gyroscope, and temperature data after the read.],
+`MPU_ReadData()` reads one measurement frame from the MPU6050 and updates the
+acceleration, angular-velocity, and temperature fields of `MPU_Data_t`. The
+function reports success only when the sensor has been initialized and the
+read operation completes without error #cite-ref(refs, "eduframework-mpu6050").
+
+#block(breakable: false)[
+  #api-detail(
+    name: "MPU_ReadData",
+    syntax: [MPU_ReadData(data);],
+    description: [
+      Read a measurement frame and update the supplied data structure.
+    ],
+    parameters: (
+      (
+        [data],
+        [Address of the data storage location],
+        [Address of an `MPU_Data_t` variable that receives the measurements, such as `&data`.],
+      ),
     ),
-  ),
-  returns: [
-    `true` when the data are read successfully; `false` when the Device has not been
-    initialized, the parameter is invalid, or I2C communication fails.
-  ],
-)
+    returns: [
+      `true` if the read succeeds; `false` if the sensor is not initialized,
+      the argument is invalid, or I2C communication fails.
+    ],
+  )
+]
 
 Example:
 
@@ -391,6 +414,7 @@ if (true == MPU_ReadData(&data))
 }
 ```
 
+
 // ============================================================================
 // 5. LAB EXERCISE
 // ============================================================================
@@ -399,115 +423,122 @@ if (true == MPU_ReadData(&data))
 
 == Requirements
 
-Build a program that monitors motion data from the MPU6050 and displays the results on
-the Serial Monitor. The program uses `MPU_Begin()` to initialize the Device, then calls
-`MPU_ReadData()` every `1000 ms` to obtain three-axis acceleration, three-axis gyroscope,
-and sensor-temperature data.
+Write a program that reads three-axis acceleration, three-axis angular
+velocity, and the internal MPU6050 temperature, then displays the results on
+the Serial Monitor. Initialize the sensor with `MPU_Begin()`; in the main loop,
+call `MPU_ReadData()` and wait `1000 ms` before the next iteration.
 
-The Serial Monitor uses a baud rate of `9600`. If initialization fails, the program must
-report the error and must not continue reading the sensor. If an individual read fails,
-the program prints an error message for that read and retries on the next cycle.
+The Serial Monitor operates at `9600 baud`. If initialization fails, the
+program prints an error and does not continue reading. If an individual read
+fails, the program reports the error and retries during the next iteration.
 
+
+// Keep the subsection heading and introduction with the unbreakable code listing.
+#pagebreak()
 == Program
 
-In `src/main.c`, implement the hardware-verified program as follows:
+In `src/main.c`, use the program verified on the hardware:
 
 #block(breakable: false)[
   #code-listing(
-    caption: [MPU6050 data-monitoring program],
+    caption: [MPU6050 motion-data monitoring program],
   )[
     ```c
-    #include "Arduino.h"
-    #include "MPU6050.h"
-    int main(void)
-    {
-        MPU_Data_t data;
-        setup();
-        Serial1_begin(9600U);
-        Serial1_println("MPU6050 Sensor Monitor");
-        Serial1_println("----------------------");
-        if (false == MPU_Begin())
-        {
-            Serial1_println("MPU6050 initialization failed.");
-            while (1)
-            {
-                delay(1000U);
-            }
-        }
-        Serial1_println("MPU6050 initialized.");
-        while (1)
-        {
-            if (true == MPU_ReadData(&data))
-            {
-                Serial1_print("Accel X: ");
-                Serial1_printFloat(data.accelX);
-                Serial1_print(" g | Y: ");
-                Serial1_printFloat(data.accelY);
-                Serial1_print(" g | Z: ");
-                Serial1_printFloat(data.accelZ);
-                Serial1_println(" g");
-                Serial1_print("Gyro X: ");
-                Serial1_printFloat(data.gyroX);
-                Serial1_print(" dps | Y: ");
-                Serial1_printFloat(data.gyroY);
-                Serial1_print(" dps | Z: ");
-                Serial1_printFloat(data.gyroZ);
-                Serial1_println(" dps");
-                Serial1_print("Temperature: ");
-                Serial1_printFloat(data.temperature);
-                Serial1_println(" C");
-                Serial1_println("----------------------");
-            }
-            else
-            {
-                Serial1_println("MPU6050 read failed.");
-            }
-            delay(1000U);
-        }
-    }
+      #include "Arduino.h"
+      #include "MPU6050.h"
+
+      int main(void)
+      {
+          MPU_Data_t data;
+          setup();
+          Serial1_begin(9600U);
+          Serial1_println("MPU6050 Sensor Monitor");
+          Serial1_println("----------------------");
+          if (false == MPU_Begin())
+          {
+              Serial1_println("MPU6050 initialization failed.");
+              while (1)
+              {
+                  delay(1000U);
+              }
+          }
+          Serial1_println("MPU6050 initialized.");
+          while (1)
+          {
+              if (true == MPU_ReadData(&data))
+              {
+                  Serial1_print("Accel X: ");
+                  Serial1_printFloat(data.accelX);
+                  Serial1_print(" g | Y: ");
+                  Serial1_printFloat(data.accelY);
+                  Serial1_print(" g | Z: ");
+                  Serial1_printFloat(data.accelZ);
+                  Serial1_println(" g");
+                  Serial1_print("Gyro X: ");
+                  Serial1_printFloat(data.gyroX);
+                  Serial1_print(" dps | Y: ");
+                  Serial1_printFloat(data.gyroY);
+                  Serial1_print(" dps | Z: ");
+                  Serial1_printFloat(data.gyroZ);
+                  Serial1_println(" dps");
+                  Serial1_print("Temperature: ");
+                  Serial1_printFloat(data.temperature);
+                  Serial1_println(" C");
+                  Serial1_println("----------------------");
+              }
+              else
+              {
+                  Serial1_println("MPU6050 read failed.");
+              }
+              delay(1000U);
+          }
+      }
     ```
   ]
 ]
 
+
 == Program Explanation
 
 `setup()` initializes the underlying EduFramework components, and
-`Serial1_begin(9600U)` prepares the Serial Monitor channel. `MPU_Begin()` then performs
-the complete initialization required for the default MPU6050 configuration. If the API
-returns `false`, the program remains in the error loop to avoid continuing with a Device
-that is not ready #cite-ref(refs, "eduframework-mpu6050").
+`Serial1_begin(9600U)` configures the Serial Monitor at `9600 baud`.
+`MPU_Begin()` then initializes the MPU6050. If the function returns `false`,
+the program reports the error and does not continue reading the sensor
+#cite-ref(refs, "eduframework-mpu6050").
 
-Inside the main loop, `MPU_ReadData(&data)` reads one measurement frame. When the read is
-successful, all data have already been converted and stored in `data`, so the application
-only needs to access the `accelX`, `accelY`, `accelZ`, `gyroX`, `gyroY`, `gyroZ`, and
-`temperature` fields. The results are sent to the Serial Monitor using the Serial APIs
-introduced in previous labs #cite-ref(refs, "eduframework-mpu6050").
+Each iteration calls `MPU_ReadData(&data)` to store the measurements in the
+`data` structure. When the function returns `true`, the program prints
+`accelX`, `accelY`, `accelZ`, `gyroX`, `gyroY`, `gyroZ`, and `temperature` using
+the Serial APIs. If the read fails, the program prints `MPU6050 read failed.`
+and retries on the next iteration #cite-ref(refs, "eduframework-mpu6050").
 
 The application flow can be summarized as:
 
-`Motion` → `MPU6050` → `I2C` → `MPU_ReadData()` → `MPU_Data_t` → `Serial1`
-→ `Serial Monitor`
+`Motion` → `MPU6050` → `I2C` → `MPU_ReadData()` → `Serial1` →
+`Serial Monitor`
 
-`delay(1000U)` creates a one-second interval between updates, making the Serial Monitor
-output easier to observe.
+`delay(1000U)` introduces a one-second pause after each processing cycle. The
+actual update period also includes the time required to read the sensor and
+transmit the data over Serial.
+
 
 == Verification
 
-Build and upload the program to the MaaZEDU Development Board, then open the Serial
-Monitor at a baud rate of `9600`.
+Build and upload the program to the MaaZEDU board, then open the Serial Monitor
+at `9600 baud`.
 
-First, place the module at rest on a stable surface. When one sensor axis is nearly
-aligned with gravity, the acceleration component on that axis has a magnitude close to
-`1 g`, while the gyroscope values on all three axes remain close to `0 dps`. Actual
-values may differ slightly because of module orientation, sensor offset, and noise
-#cite-ref(refs, "berkeley-imu").
+First, place the module at rest on a stable surface. When one sensor axis is
+nearly aligned with gravity, the acceleration component along that axis has a
+magnitude close to `1 g`, while the angular-velocity readings are near `0 dps`.
+The values may vary due to module orientation, zero-rate offset, and sensor
+noise #cite-ref(refs, "berkeley-imu").
 
-Next, tilt the module to observe how acceleration is distributed among the axes, then
-rotate the module to observe changes in the gyroscope values. The values are not required
-to match a fixed set of numbers; the objective is to verify that the measurements respond
+Next, tilt the module to observe acceleration along each axis, then rotate it
+to observe changes in angular velocity. The readings need not match any fixed
+set of values; the purpose is to verify that the measurements respond
 appropriately to physical motion.
 
-Data observed during hardware testing have the following form:
+The following output was observed during hardware testing:
 
 ```text
 MPU6050 Sensor Monitor
@@ -521,13 +552,14 @@ Temperature: 46.412 C
 
 #block(breakable: false)[
   #expected-result[
-    The Serial Monitor continuously displays three-axis acceleration and gyroscope data
-    together with the sensor temperature. When the module is tilted or rotated, the
-    corresponding values change with the motion; when the module is stationary, the
-    gyroscope values remain near `0 dps`, while the acceleration values reflect the
-    gravity component according to the sensor orientation.
+    The Serial Monitor displays acceleration and angular velocity along three
+    axes, together with the internal MPU6050 temperature. When the module is
+    tilted or rotated, the measurements change accordingly. When it is at rest,
+    angular velocity is generally close to `0 dps`, and the accelerometer
+    reflects the component of gravity along the sensor axes.
   ]
 ]
+
 
 // ============================================================================
 // 6. EXTENSION
@@ -535,16 +567,16 @@ Temperature: 46.412 C
 
 = Extension
 
-The main lab exercise uses the Beginner API to keep the configuration and program flow
-simple. The MPU6050 Device also provides selective-read APIs, calibration, and a
-context-based Advanced API so that an application can choose the I2C address, measurement
-ranges, and number of calibration samples when required
-#cite-ref(refs, "eduframework-mpu6050").
+The main exercise uses the Beginner API with the default configuration.
+This section introduces selective-read and calibration functions, along with
+the Advanced API for selecting the I2C address, measurement ranges, and number
+of calibration samples #cite-ref(refs, "eduframework-mpu6050").
+
 
 == Selective Reading and Status Checking
 
 In addition to `MPU_ReadData()`, the Beginner API provides functions for reading
-individual groups of data:
+individual groups of measurements and checking initialization status:
 
 #block(
   width: 100%,
@@ -564,18 +596,18 @@ individual groups of data:
         #align(center + horizon)[*Function*]
       ],
     ),
-    [`MPU_IsInitialized()`], [Check the initialization state of the default Device.],
+    [`MPU_IsInitialized()`], [Check the initialization state of the default device.],
     [`MPU_ReadAcceleration()`], [Read acceleration along the X, Y, and Z axes.],
-    [`MPU_ReadGyroscope()`], [Read gyroscope data along the X, Y, and Z axes.],
+    [`MPU_ReadGyroscope()`], [Read angular velocity about the X, Y, and Z axes.],
     [`MPU_ReadTemperature()`], [Read the internal MPU6050 sensor temperature.],
   )
+  #align(center)[_Table 11.6.1. Selective-read and status-checking APIs_]
 ]
 
-Each selective-read API performs a new sensor read before returning the result. Therefore,
-when an application needs acceleration, gyroscope, and temperature data at the same time,
-`MPU_ReadData()` is more appropriate because the values are obtained from the same
-measurement frame and require only one Device read cycle
-#cite-ref(refs, "eduframework-mpu6050").
+`MPU_ReadAcceleration()`, `MPU_ReadGyroscope()`, and `MPU_ReadTemperature()`
+read their respective measurement groups from the sensor. When all three groups
+are needed, `MPU_ReadData()` is more suitable because it updates them through
+a single API call #cite-ref(refs, "eduframework-mpu6050").
 
 Example when only acceleration is required:
 
@@ -586,43 +618,46 @@ float z = 0.0F;
 
 if (true == MPU_ReadAcceleration(&x, &y, &z))
 {
-    /* Use acceleration data. */
+    /* Process acceleration data. */
 }
 ```
 
-== Calibration with `MPU_Calibrate()`
 
-`MPU_Calibrate()` calibrates the default MPU6050 by collecting multiple samples while
-the sensor is stationary and calculating accelerometer and gyroscope offsets. In the
-current implementation, the Beginner API uses `500` samples. The algorithm assumes that
-the module is held steady with the `+Z` axis close to `+1 g` during calibration
-#cite-ref(refs, "eduframework-mpu6050").
+== Calibration with MPU_Calibrate()
+
+`MPU_Calibrate()` calibrates the default device by collecting measurements while
+the sensor remains stationary and determining accelerometer and gyroscope
+zero-offset values. According to the EduFramework implementation, the Beginner
+API uses `500` samples and assumes a stable orientation with approximately
+`+1 g` along the `+Z` axis #cite-ref(refs, "eduframework-mpu6050").
 
 #api-detail(
   name: "MPU_Calibrate",
   syntax: [MPU_Calibrate();],
   description: [
-    Calibrate the default MPU6050 and update the offsets applied to subsequent readings.
+    Calibrate the default MPU6050 and update the offsets applied to subsequent
+    readings.
   ],
   parameters: (),
   returns: [
-    `true` when the complete calibration process finishes successfully; `false` when the
-    Device has not been initialized or an error occurs while collecting samples.
+    `true` if calibration completes successfully; `false` if the sensor has not
+    been initialized or an error occurs during sample collection.
   ],
 )
 
 #note[
-  Keep the module stationary and approximately level throughout calibration. Moving the
-  sensor while samples are being collected causes the resulting offsets to no longer
-  represent the intended static condition.
+  Keep the module stationary throughout calibration and orient it as required
+  by the algorithm. Moving the sensor while samples are being collected makes
+  the calibration results unrepresentative of the intended static condition.
 ]
 
-== I2C Address and the `AD0` Pin
 
-The default lab configuration connects `AD0` to `GND`, corresponding to address `0x68`.
-The MPU6050 also allows `AD0` to be driven to a logic-high level to use address `0x69`.
-This mechanism allows two MPU6050 devices to coexist on one I2C bus when one Device uses
-address `0x68` and the other uses `0x69` #cite-ref(refs, "tdk-mpu6050").
+== I2C Address and the AD0 Pin
+
+When `AD0` is low, the MPU6050 uses the 7-bit I2C address `0x68`; when the pin
+is high, the address changes to `0x69`. Two MPU6050 devices can therefore be
+distinguished on the same I2C bus if their `AD0` pins are held at different
+logic levels #cite-ref(refs, "tdk-mpu6050").
 
 EduFramework defines two address constants:
 
@@ -631,9 +666,9 @@ MPU6050_ADDRESS_DEFAULT   /* 0x68 */
 MPU6050_ADDRESS_ALT       /* 0x69 */
 ```
 
-The Beginner API always uses the default address. When address selection is required, the
-application uses the Advanced API and a separate `MPU6050_t` context. With the Advanced
-API, the Wire layer must be initialized before `MPU6050_begin()` is called
+The Beginner API uses the default address `0x68`. To select another address,
+the application must use the Advanced API with an `MPU6050_t` device context;
+the Wire layer must be initialized before calling `MPU6050_begin()`
 #cite-ref(refs, "eduframework-mpu6050").
 
 Example:
@@ -653,11 +688,13 @@ Example:
   ]
 ]
 
+
 == Customizing Measurement Ranges
 
-The MPU6050 Product Specification supports four accelerometer full-scale ranges and four
-gyroscope full-scale ranges. EduFramework exposes these choices through the Advanced API
-#cite-ref(refs, "tdk-mpu6050") #cite-ref(refs, "eduframework-mpu6050").
+The MPU6050 Product Specification defines four accelerometer full-scale ranges
+and four gyroscope full-scale ranges. EduFramework provides access to these
+settings through the Advanced API #cite-ref(refs, "tdk-mpu6050")
+#cite-ref(refs, "eduframework-mpu6050").
 
 #block(
   width: 100%,
@@ -667,7 +704,7 @@ gyroscope full-scale ranges. EduFramework exposes these choices through the Adva
     columns: (1.35fr, 1.35fr),
     align: (center + horizon, center + horizon),
     stroke: 0.4pt + table-line,
-    inset: 7pt,
+    inset: 5pt,
     table.header(
       repeat: true,
       table.cell(fill: table-header-gray)[
@@ -682,6 +719,7 @@ gyroscope full-scale ranges. EduFramework exposes these choices through the Adva
     [`MPU6050_RANGE_8_G`], [`MPU6050_RANGE_1000_DEG`],
     [`MPU6050_RANGE_16_G`], [`MPU6050_RANGE_2000_DEG`],
   )
+  #align(center)[_Table 11.6.2. MPU6050 measurement-range options_]
 ]
 
 The corresponding configuration APIs are:
@@ -691,89 +729,107 @@ MPU6050_setAccelerometerRange(&mpu, MPU6050_RANGE_4_G);
 MPU6050_setGyroRange(&mpu, MPU6050_RANGE_500_DEG);
 ```
 
-A larger measurement range allows the sensor to represent motion with a larger amplitude,
-while the sensitivity in counts per unit changes with the selected range. The measurement
-range should therefore be selected according to the expected motion amplitude of the
-application rather than always using the largest range #cite-ref(refs, "tdk-mpu6050").
+A larger full-scale range allows the sensor to represent greater motion
+amplitudes, but the sensitivity (counts per unit) also changes. The range should
+therefore be selected according to the expected acceleration or angular
+velocity rather than always choosing the largest setting
+#cite-ref(refs, "tdk-mpu6050").
 
+
+// Keep compact API tables to allow natural pagination.
 == Context-Based Advanced API
 
-The Advanced API stores the address, measurement ranges, measurement data, and
-calibration offsets in `MPU6050_t`. This model allows the application to control the
-Device configuration instead of relying on the default context used by the Beginner API
-#cite-ref(refs, "eduframework-mpu6050").
+The Advanced API uses an `MPU6050_t` context to manage the I2C address,
+measurement ranges, sensor data, and calibration offsets instead of relying on
+the default configuration #cite-ref(refs, "eduframework-mpu6050").
 
-The main APIs are:
+The initialization, configuration, and measurement APIs are summarized below:
 
-#block(
-  width: 100%,
-  breakable: false,
-)[
+#block(width: 100%, breakable: false)[
   #table(
     columns: (1.8fr, 2.2fr),
     align: (left + horizon, left + horizon),
     stroke: 0.4pt + table-line,
-    inset: 7pt,
+    inset: 4pt,
     table.header(
       repeat: true,
-      table.cell(fill: table-header-gray)[
-        #align(center + horizon)[*Advanced API*]
-      ],
-      table.cell(fill: table-header-gray)[
-        #align(center + horizon)[*Role*]
-      ],
+      table.cell(fill: table-header-gray)[#align(center + horizon)[*Advanced API*]],
+      table.cell(fill: table-header-gray)[#align(center + horizon)[*Role*]],
     ),
-    [`MPU6050_begin()`], [Initialize a context using the selected I2C address.],
-    [`MPU6050_setAccelerometerRange()`], [Change the accelerometer measurement range.],
-    [`MPU6050_setGyroRange()`], [Change the gyroscope measurement range.],
+    [`MPU6050_begin()`], [Initialize a context with the selected I2C address.],
+    [`MPU6050_setAccelerometerRange()`], [Change the accelerometer range.],
+    [`MPU6050_setGyroRange()`], [Change the gyroscope range.],
     [`MPU6050_read()`], [Read a measurement frame into the context.],
     [`MPU6050_calibrate()`], [Calibrate using a sample count selected by the application.],
+  )
+  #align(center)[_Table 11.6.3. Initialization, configuration, and measurement APIs_]
+]
+
+The APIs for retrieving measurements stored in the context are:
+
+#block(width: 100%, breakable: false)[
+  #table(
+    columns: (1.8fr, 2.2fr),
+    align: (left + horizon, left + horizon),
+    stroke: 0.4pt + table-line,
+    inset: 4pt,
+    table.header(
+      repeat: true,
+      table.cell(fill: table-header-gray)[#align(center + horizon)[*Advanced API*]],
+      table.cell(fill: table-header-gray)[#align(center + horizon)[*Role*]],
+    ),
     [
       `MPU6050_getAccelerationX()`, `MPU6050_getAccelerationY()`,
       `MPU6050_getAccelerationZ()`
     ],
-    [Read the stored acceleration value for each axis from the context.],
+    [Retrieve the stored acceleration component for each axis.],
 
     [
       `MPU6050_getGyroX()`, `MPU6050_getGyroY()`, `MPU6050_getGyroZ()`
     ],
-    [Read the stored gyroscope value for each axis from the context.],
+    [Retrieve the stored angular-velocity component for each axis.],
 
-    [`MPU6050_getTemperature()`], [Read the stored temperature from the context.],
+    [`MPU6050_getTemperature()`], [Retrieve the stored temperature.],
   )
+  #align(center)[_Table 11.6.4. APIs for retrieving data from a device context_]
 ]
 
-The Beginner API is suitable when only one MPU6050 with the standard configuration is
-required. The Advanced API is appropriate when the application requires a different
-address, a different measurement range, a custom calibration sample count, or explicit
-management of the Device context.
+The Beginner API is suitable for one sensor operating with the default
+configuration. The Advanced API supports custom I2C addresses, measurement
+ranges, calibration sample counts, and separate device contexts.
+
 
 == Extension Exercise
 
-Configure the MPU6050 at address `0x69` by setting `AD0` to a logic-high level and use
-the Advanced API to:
+Set `AD0` to a logic-high level to select address `0x69`, then use the Advanced
+API to:
 
-- initialize a separate `MPU6050_t`;
-- select an accelerometer range of `±4 g`;
-- select a gyroscope range of `±500 dps`;
-- perform calibration using a sample count selected by the program;
-- read the data and display acceleration and gyroscope values on the Serial Monitor.
+- Initialize a separate `MPU6050_t` context;
+- Select an accelerometer range of `±4 g`;
+- Select a gyroscope range of `±500 dps`;
+- Calibrate using a sample count selected by the program;
+- Read and display acceleration and angular-velocity data on the Serial Monitor.
 
-Do not use `MPU_Begin()` in this exercise. The objective is to work directly with
-`MPU6050_begin()`, the range-configuration APIs, and `MPU6050_calibrate()`.
+Do not call `MPU_Begin()` in this exercise. Use `MPU6050_begin()`, the
+range-configuration functions, and `MPU6050_calibrate()` through the Advanced API.
 
 #block(breakable: false)[
   #expected-result[
-    The MPU6050 is initialized successfully at address `0x69`, data continue to be read
-    and displayed after the measurement ranges are changed, and the stationary gyroscope
-    values improve after an appropriate calibration process.
+    The sensor initializes at address `0x69` and returns measurements after
+    the ranges are configured. With calibration performed under the required
+    stationary conditions, the zero-rate offset in the gyroscope readings may
+    be reduced.
   ]
 ]
+
 
 // ============================================================================
 // 7. REFERENCES
 // ============================================================================
 
-= References
+// Keep the entire references section on one page to avoid an orphaned entry.
+#block(breakable: false)[
+  = References
 
-#references(refs)
+  #references(refs)
+]
