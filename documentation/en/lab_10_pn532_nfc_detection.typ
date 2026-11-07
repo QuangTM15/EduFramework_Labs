@@ -93,7 +93,8 @@
 #show: lab.with(
   number: 10,
   language: "en",
-  title: [NFC Card Detection with PN532],
+  title: [NFC Card Detection\
+    with PN532],
   subtitle: [Reading Card UIDs over UART (HSU) Using EduFramework],
 )
 
