@@ -109,7 +109,7 @@ Bài lab này giới thiệu cách tạo các tone đơn giản bằng EduFramew
 buzzer được kết nối với `GPIO7`, sau đó chương trình lần lượt phát các tần số
 khác nhau để tạo một chuỗi âm có cao độ tăng dần. Nội dung tập trung vào ba yếu
 tố chính: tín hiệu tuần hoàn, quan hệ giữa tần số và cao độ, và cách điều khiển
-buzzer bằng API của framework.
+buzzer bằng API của framework. Chương trình sử dụng tám nốt từ C5 đến C6.
 
 == Mục tiêu
 
@@ -128,8 +128,7 @@ buzzer bằng API của framework.
     ],
 
     [
-      Xây dựng và kiểm chứng chương trình phát một chuỗi âm liên tiếp trên
-      passive buzzer.
+      Xây dựng và kiểm chứng chương trình phát thang âm tăng dần, có khoảng nghỉ giữa các nốt.
     ],
   ),
 )
@@ -224,8 +223,7 @@ số nhưng được phát trong thời gian ngắn hoặc dài tùy yêu cầu 
 bài thực hành với buzzer thường mô tả riêng tần số theo hertz và thời lượng theo
 millisecond #cite-ref(refs, "augusta-buzzer").
 
-Trong Lab 07, mỗi tone được giữ trong `500 ms`. Sau chuỗi tone, buzzer được dừng
-trong `1000 ms` để tạo khoảng im lặng trước khi chuỗi bắt đầu lại.
+Trong Lab 07, bảy nốt đầu được phát trong `300 ms` mỗi nốt; nốt C6 cuối kéo dài `450 ms`. Giữa các nốt có khoảng im lặng `80 ms` để phân biệt từng âm. Sau nốt cuối, buzzer dừng `1000 ms` trước khi chuỗi được lặp lại.
 
 
 // ============================================================================
@@ -284,12 +282,12 @@ làm đầu ra điều khiển buzzer trong bài thực hành
   ),
   rows: (
     (
-      [Passive Buzzer],
+      [Chân (+) của Passive Buzzer],
       [`GPIO7`],
       [Nhận tín hiệu điều khiển để tạo âm thanh.],
     ),
     (
-      [Passive Buzzer],
+      [Chân (-) của Passive Buzzer],
       [`GND`],
       [Nối về GND của MaaZEDU Development Board.],
     ),
@@ -320,7 +318,7 @@ cấp hai API cùng tên với giao diện phù hợp cho MaaZEDU.
 == `tone()`
 
 `tone()` bắt đầu tạo tín hiệu vuông với tần số được chỉ định trên một Logical
-Pin có khả năng PWM. Trong implementation hiện tại, tín hiệu được tạo với duty
+Pin có khả năng PWM. Trong phiên bản EduFramework hiện tại, tín hiệu được tạo với duty
 cycle `50%` #cite-ref(refs, "eduframework-tone").
 
 #api-detail(
@@ -352,7 +350,7 @@ cycle `50%` #cite-ref(refs, "eduframework-tone").
 Ví dụ:
 
 ```c
-tone(GPIO7, 440U);
+tone(GPIO7, 523U);
 ```
 
 Trong EduFramework, `tone()` không có tham số thời lượng. Tín hiệu tiếp tục được
@@ -392,8 +390,7 @@ Ví dụ:
 noTone(GPIO7);
 ```
 
-Trong bài thực hành, API này được gọi sau tone cuối để tạo khoảng im lặng trước
-khi chuỗi được lặp lại.
+Trong bài thực hành, `noTone()` được gọi sau mỗi nốt để kết thúc tín hiệu và tạo khoảng im lặng. Sau bảy nốt đầu, chương trình chờ `80 ms`; sau nốt cuối, chương trình chờ `1000 ms` trước khi lặp lại.
 
 == Lưu ý về tài nguyên PWM
 
@@ -448,94 +445,87 @@ các nhóm sau #cite-ref(refs, "eduframework-tone"):
 
 == Yêu cầu
 
-Xây dựng chương trình sử dụng passive buzzer trên `GPIO7` để phát một chuỗi âm
-có cao độ tăng dần.
+Xây dựng chương trình sử dụng passive buzzer trên `GPIO7` để phát thang âm Đô trưởng tăng dần từ C5 đến C6.
 
 Chương trình cần đáp ứng các yêu cầu sau:
 
-- Phát lần lượt bảy tone tương ứng với C, D, E, F, G, A và B.
-- Duy trì mỗi tone trong `500 ms`.
-- Sau tone cuối, dừng buzzer trong `1000 ms`.
-- Lặp lại toàn bộ chuỗi liên tục.
+- Phát lần lượt tám nốt C5, D5, E5, F5, G5, A5, B5 và C6 (Đô cao).
+- Duy trì bảy nốt đầu trong `300 ms` mỗi nốt và nốt C6 cuối trong `450 ms`.
+- Gọi `noTone()` sau mỗi nốt, tạo khoảng im lặng `80 ms` giữa các nốt.
+- Sau nốt cuối, dừng buzzer trong `1000 ms`, rồi lặp lại chuỗi liên tục.
 
 == Chương trình
 
-Trong `src/main.c`, triển khai chương trình đã được kiểm chứng trên phần cứng
-như sau:
+Trong `src/main.c`, triển khai chương trình đã được thử nghiệm trên phần cứng như sau:
 
 #block(breakable: false)[
   #code-listing(
-    caption: [Chương trình phát chuỗi tone bằng Passive Buzzer],
+    caption: [Chương trình phát thang âm C5–C6 bằng Passive Buzzer],
   )[
     ```c
     #include "Arduino.h"
-
     int main(void)
     {
         setup();
-
         while (1)
         {
-            tone(GPIO7, 262U);    /* C */
-            delay(500U);
-
-            tone(GPIO7, 294U);    /* D */
-            delay(500U);
-
-            tone(GPIO7, 330U);    /* E */
-            delay(500U);
-
-            tone(GPIO7, 349U);    /* F */
-            delay(500U);
-
-            tone(GPIO7, 392U);    /* G */
-            delay(500U);
-
-            tone(GPIO7, 440U);    /* A */
-            delay(500U);
-
-            tone(GPIO7, 494U);    /* B */
-            delay(500U);
-
+            tone(GPIO7, 523U); /* C5 - Do */
+            delay(300U);
+            noTone(GPIO7);
+            delay(80U);
+            tone(GPIO7, 587U); /* D5 - Re */
+            delay(300U);
+            noTone(GPIO7);
+            delay(80U);
+            tone(GPIO7, 659U); /* E5 - Mi */
+            delay(300U);
+            noTone(GPIO7);
+            delay(80U);
+            tone(GPIO7, 698U); /* F5 - Fa */
+            delay(300U);
+            noTone(GPIO7);
+            delay(80U);
+            tone(GPIO7, 784U); /* G5 - Sol */
+            delay(300U);
+            noTone(GPIO7);
+            delay(80U);
+            tone(GPIO7, 880U); /* A5 - La */
+            delay(300U);
+            noTone(GPIO7);
+            delay(80U);
+            tone(GPIO7, 988U); /* B5 - Si */
+            delay(300U);
+            noTone(GPIO7);
+            delay(80U);
+            tone(GPIO7, 1047U); /* C6 - Do */
+            delay(450U);
             noTone(GPIO7);
             delay(1000U);
         }
-
         return 0;
     }
     ```
   ]
 ]
 
-Mỗi cặp lệnh gồm một giá trị tần số và một khoảng chờ `500 ms`. Khi chương
-trình chuyển từ giá trị tần số hiện tại sang giá trị lớn hơn, cao độ nghe được
-tăng theo quan hệ giữa frequency và pitch
-#cite-ref(refs, "umn-pitch").
+Mỗi lệnh `tone()` xác định tần số của một nốt nhạc. `delay(300U)` duy trì bảy nốt đầu trong `300 ms`, còn `delay(450U)` duy trì nốt C6 cuối trong `450 ms`. Các tần số tăng từ `523 Hz` đến `1047 Hz`, vì vậy cao độ cũng tăng dần #cite-ref(refs, "umn-pitch").
 
-Sau `494 Hz`, chương trình dừng tín hiệu trên buzzer và chờ `1000 ms`. Khoảng
-im lặng này tạo ranh giới rõ ràng giữa hai lần lặp của chuỗi. Khi vòng lặp bắt
-đầu lại, buzzer tiếp tục phát từ tần số đầu tiên.
+Sau mỗi nốt, `noTone(GPIO7)` dừng tín hiệu. Bảy khoảng chờ `80 ms` giúp tách biệt tám nốt nhạc. Sau nốt C6, chương trình chỉ chờ `1000 ms` trước khi phát lại từ C5, không có khoảng chờ `80 ms` bổ sung.
 
-Các giá trị tần số được viết trực tiếp trong chương trình để phần thực hành tập
-trung vào ảnh hưởng của tham số `frequency`. Cách đặt tên các tần số để làm mã
-nguồn dễ đọc hơn được giới thiệu trong phần Mở rộng.
+Các giá trị tần số được viết trực tiếp để tập trung vào tham số `frequency`. Cách đặt tên các nốt bằng hằng số được giới thiệu trong phần Mở rộng.
 
 == Kiểm chứng
 
-Build và nạp chương trình xuống MaaZEDU Development Board. Quan sát âm thanh
-phát ra từ passive buzzer và kiểm tra:
+Build và nạp chương trình xuống MaaZEDU Development Board. Lắng nghe âm thanh từ passive buzzer và kiểm tra:
 
-- Có bảy tone liên tiếp trong mỗi chuỗi.
-- Cao độ tăng dần từ tone đầu tới tone cuối.
-- Mỗi tone kéo dài khoảng `500 ms`.
-- Sau tone cuối có khoảng im lặng khoảng `1000 ms`.
-- Chuỗi được lặp lại liên tục.
+- Có tám nốt tăng dần từ C5 đến C6 trong mỗi chuỗi.
+- Bảy nốt đầu kéo dài khoảng `300 ms`; nốt C6 cuối kéo dài khoảng `450 ms`.
+- Có khoảng im lặng khoảng `80 ms` giữa các nốt liền kề.
+- Sau nốt C6 có khoảng im lặng khoảng `1000 ms` trước khi chuỗi lặp lại.
 
 #block(breakable: false)[
   #expected-result[
-    Passive buzzer phát bảy tone có cao độ tăng dần. Mỗi tone được duy trì
-    khoảng `500 ms`. Sau tone cuối, buzzer im lặng khoảng `1000 ms`, sau đó
-    chuỗi bắt đầu lại.
+    Passive buzzer phát thang âm gồm tám nốt C5–C6 với cao độ tăng dần. Bảy nốt đầu kéo dài khoảng `300 ms` mỗi nốt, nốt cuối kéo dài khoảng `450 ms`. Các nốt được phân tách bằng khoảng nghỉ `80 ms`; sau nốt cuối, buzzer im lặng khoảng `1000 ms` trước khi lặp lại.
   ]
 ]
 
@@ -552,16 +542,16 @@ giá trị thường dùng bằng hằng số.
 
 == Đặt tên tần số bằng hằng số
 
-Ví dụ, tần số đầu tiên của bài thực hành có thể được định nghĩa:
+Ví dụ, tần số của nốt C5 trong bài thực hành có thể được định nghĩa:
 
 ```c
-#define NOTE_C4 262U
+#define NOTE_C5 523U
 ```
 
 Khi đó lời gọi trong chương trình có thể viết:
 
 ```c
-tone(GPIO7, NOTE_C4);
+tone(GPIO7, NOTE_C5);
 ```
 
 Tên hằng số giúp thể hiện ý nghĩa của giá trị trong chương trình mà không làm

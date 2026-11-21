@@ -109,7 +109,8 @@ This lab introduces the generation of simple tones using EduFramework. A
 passive buzzer is connected to `GPIO7`, and the program sequentially generates
 different frequencies to produce a series of tones with increasing pitch. The
 lab focuses on three main concepts: periodic signals, the relationship between
-frequency and pitch, and buzzer control using the framework API.
+frequency and pitch, and buzzer control using the framework API. The program
+plays eight notes from C5 to C6.
 
 == Objectives
 
@@ -128,8 +129,7 @@ frequency and pitch, and buzzer control using the framework API.
     ],
 
     [
-      Build and verify a program that plays a sequence of tones on a passive
-      buzzer.
+      Build and verify a program that plays an ascending scale with short pauses between notes.
     ],
   ),
 )
@@ -226,9 +226,7 @@ depending on the application. Buzzer exercises commonly describe frequency in
 hertz and duration separately in milliseconds
 #cite-ref(refs, "augusta-buzzer").
 
-In Lab 07, each tone is maintained for `500 ms`. After the tone sequence, the
-buzzer is stopped for `1000 ms` to create a silent interval before the sequence
-starts again.
+In Lab 07, each of the first seven notes is played for `300 ms`, while the final C6 note lasts `450 ms`. An `80 ms` silent interval separates consecutive notes. After the final note, the buzzer remains silent for `1000 ms` before the sequence repeats.
 
 
 // ============================================================================
@@ -286,12 +284,12 @@ control output in this lab #cite-ref(refs, "eduframework-tone").
   ),
   rows: (
     (
-      [Passive Buzzer],
+      [Passive Buzzer positive terminal (+)],
       [`GPIO7`],
       [Receives the control signal used to generate sound.],
     ),
     (
-      [Passive Buzzer],
+      [Passive Buzzer negative terminal (-)],
       [`GND`],
       [Connects to GND on the MaaZEDU Development Board.],
     ),
@@ -355,7 +353,7 @@ with a `50%` duty cycle #cite-ref(refs, "eduframework-tone").
 Example:
 
 ```c
-tone(GPIO7, 440U);
+tone(GPIO7, 523U);
 ```
 
 In EduFramework, `tone()` does not include a duration parameter. The signal
@@ -395,8 +393,7 @@ Example:
 noTone(GPIO7);
 ```
 
-In this exercise, the API is called after the final tone to create a silent
-interval before the sequence repeats.
+In this exercise, `noTone()` is called after each note to stop the output and introduce a silent interval. The program waits for `80 ms` after each of the first seven notes and `1000 ms` after the final note before repeating.
 
 == PWM Resource Note
 
@@ -451,95 +448,87 @@ into the following groups #cite-ref(refs, "eduframework-tone"):
 
 == Requirements
 
-Build a program that uses a passive buzzer on `GPIO7` to play a sequence of
-tones with increasing pitch.
+Develop a program that uses a passive buzzer connected to `GPIO7` to play the ascending C-major scale from C5 to C6.
 
 The program must satisfy the following requirements:
 
-- Play seven tones corresponding to C, D, E, F, G, A, and B in sequence.
-- Maintain each tone for `500 ms`.
-- After the final tone, stop the buzzer for `1000 ms`.
-- Repeat the entire sequence continuously.
+- Play eight notes in sequence: C5, D5, E5, F5, G5, A5, B5, and C6 (upper C).
+- Play each of the first seven notes for `300 ms` and the final C6 note for `450 ms`.
+- Call `noTone()` after every note, inserting an `80 ms` silent interval between consecutive notes.
+- After the final note, keep the buzzer silent for `1000 ms`, then repeat the sequence continuously.
 
 == Program
 
-In `src/main.c`, implement the program that has been verified on the hardware:
+Implement the program in `src/main.c` as tested on the hardware:
 
 #block(breakable: false)[
   #code-listing(
-    caption: [Program for playing a tone sequence with a Passive Buzzer],
+    caption: [C5–C6 scale generation with a Passive Buzzer],
   )[
     ```c
     #include "Arduino.h"
-
     int main(void)
     {
         setup();
-
         while (1)
         {
-            tone(GPIO7, 262U);    /* C */
-            delay(500U);
-
-            tone(GPIO7, 294U);    /* D */
-            delay(500U);
-
-            tone(GPIO7, 330U);    /* E */
-            delay(500U);
-
-            tone(GPIO7, 349U);    /* F */
-            delay(500U);
-
-            tone(GPIO7, 392U);    /* G */
-            delay(500U);
-
-            tone(GPIO7, 440U);    /* A */
-            delay(500U);
-
-            tone(GPIO7, 494U);    /* B */
-            delay(500U);
-
+            tone(GPIO7, 523U); /* C5 - Do */
+            delay(300U);
+            noTone(GPIO7);
+            delay(80U);
+            tone(GPIO7, 587U); /* D5 - Re */
+            delay(300U);
+            noTone(GPIO7);
+            delay(80U);
+            tone(GPIO7, 659U); /* E5 - Mi */
+            delay(300U);
+            noTone(GPIO7);
+            delay(80U);
+            tone(GPIO7, 698U); /* F5 - Fa */
+            delay(300U);
+            noTone(GPIO7);
+            delay(80U);
+            tone(GPIO7, 784U); /* G5 - Sol */
+            delay(300U);
+            noTone(GPIO7);
+            delay(80U);
+            tone(GPIO7, 880U); /* A5 - La */
+            delay(300U);
+            noTone(GPIO7);
+            delay(80U);
+            tone(GPIO7, 988U); /* B5 - Si */
+            delay(300U);
+            noTone(GPIO7);
+            delay(80U);
+            tone(GPIO7, 1047U); /* C6 - Do */
+            delay(450U);
             noTone(GPIO7);
             delay(1000U);
         }
-
         return 0;
     }
     ```
   ]
 ]
 
-Each pair of statements contains one frequency value and a `500 ms` delay. As
-the program changes from the current frequency to a higher value, the perceived
-pitch increases according to the relationship between frequency and pitch
-#cite-ref(refs, "umn-pitch").
+Each `tone()` call specifies the frequency of one musical note. `delay(300U)` maintains each of the first seven notes for `300 ms`, while `delay(450U)` maintains the final C6 note for `450 ms`. The frequencies increase from `523 Hz` to `1047 Hz`, producing progressively higher perceived pitches #cite-ref(refs, "umn-pitch").
 
-After `494 Hz`, the program stops the buzzer signal and waits for `1000 ms`.
-This silent interval creates a clear boundary between two repetitions of the
-sequence. When the loop starts again, the buzzer resumes from the first
-frequency.
+After each note, `noTone(GPIO7)` stops the output signal. Seven `80 ms` pauses separate the eight musical notes. After C6, the program waits only `1000 ms` before restarting at C5; it does not insert an additional `80 ms` delay.
 
-The frequency values are written directly in the program so that the exercise
-focuses on the effect of the `frequency` parameter. A method for naming these
-frequencies to improve source-code readability is introduced in the Extension
-section.
+The frequency values are written directly in the program to emphasize the `frequency` parameter. Naming notes with constants is introduced in the Extension section.
 
 == Verification
 
-Build and upload the program to the MaaZEDU Development Board. Listen to the
-sound produced by the passive buzzer and verify that:
+Build and upload the program to the MaaZEDU Development Board. Listen to the passive buzzer and verify that:
 
-- Seven consecutive tones are produced in each sequence.
-- The pitch increases from the first tone to the last tone.
-- Each tone lasts approximately `500 ms`.
-- A silent interval of approximately `1000 ms` occurs after the final tone.
-- The sequence repeats continuously.
+- Each sequence contains eight ascending notes from C5 to C6.
+- The first seven notes last approximately `300 ms` each, while the final C6 lasts approximately `450 ms`.
+- Consecutive notes are separated by approximately `80 ms` of silence.
+- A silent interval of approximately `1000 ms` follows C6 before the sequence repeats.
 
 #block(breakable: false)[
   #expected-result[
-    The passive buzzer produces seven tones with increasing pitch. Each tone is
-    maintained for approximately `500 ms`. After the final tone, the buzzer
-    remains silent for approximately `1000 ms`, then the sequence starts again.
+    The passive buzzer plays an ascending eight-note C5–C6 scale. Each of the first seven notes lasts approximately `300 ms`, and the final note lasts approximately `450 ms`. An `80 ms` pause separates consecutive notes, followed by a `1000 ms` pause after the final note before the sequence repeats.
   ]
 ]
 
@@ -556,16 +545,16 @@ names to commonly used values with constants.
 
 == Naming Frequencies with Constants
 
-For example, the first frequency used in the exercise can be defined as:
+For example, the frequency of the C5 note in the exercise can be defined as:
 
 ```c
-#define NOTE_C4 262U
+#define NOTE_C5 523U
 ```
 
 The API call can then be written as:
 
 ```c
-tone(GPIO7, NOTE_C4);
+tone(GPIO7, NOTE_C5);
 ```
 
 The constant name expresses the meaning of the value in the program without
